@@ -1,0 +1,6 @@
+{
+    "name": "jurjean/SprayPersistenceBundle",
+    "require": {
+        "doctrine/orm": "2.2.*"
+    }
+}
