@@ -1,5 +1,5 @@
 {
-    "name": "jurjean/SprayPersistenceBundle",
+    "name": "jurjean/spray-persistence-bundle",
     "require": {
         "doctrine/orm": "2.2.*"
     }
