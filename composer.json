@@ -1,6 +1,11 @@
 {
     "name": "jurjean/spray-persistence-bundle",
     "require": {
-        "doctrine/orm": "2.2.*"
+        "doctrine/orm": "2.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Spray": "src/"
+        }
     }
 }
