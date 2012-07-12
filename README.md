@@ -20,8 +20,8 @@ the default Repository class and add methods as follows:
         }
     }
 
-This works fine, but when your application grows larger you might need to find
-published entities before a specific date:
+When your application grows larger you might need to find published entities
+before a specific date:
 
     class MyRepository extends Repository
     {
@@ -41,7 +41,7 @@ Now you need a published entity, before a specific date, within a radius of your
 location.
 
 At this moment you'll create more and more duplicate code. That's where the
-FilterableEntityRepository comes into play. The above logic can be rewritten as:
+FilterableEntityRepository comes in. The above logic can be rewritten as:
 
     class EntityPublished implements EntityFilterInterface
     {
