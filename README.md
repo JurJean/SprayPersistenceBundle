@@ -51,7 +51,7 @@ FilterableEntityRepository comes in. The above logic can be rewritten as:
         }
     }
 
-    class EntityBeforeDate extends AbstractBeforeDateTimeFilter
+    class EntityBeforeDate extends AbstractBeforeFilter
     {
         protected $propertyName = 'foo';
     }
@@ -64,7 +64,7 @@ FilterableEntityRepository comes in. The above logic can be rewritten as:
         }
     }
 
-    $repository = new Repository();
+    $repository = new FilterableEntityRepository();
     $repository->filter(new EntityPublished());
     $repository->filter(new EntityBeforeDate());
     $repository->filter(new EntityWithinRadius());
