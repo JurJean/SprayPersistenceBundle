@@ -1,11 +1,14 @@
 {
     "name": "jurjean/spray-persistence-bundle",
+    "minimum-stability": "dev",
     "require": {
-        "doctrine/orm": "2.*"
+        "doctrine/orm": "2.*",
+        "symfony/dependency-injection": "2.1.*",
+        "symfony/http-kernel": "2.1.*"
     },
     "autoload": {
         "psr-0": {
-            "Spray": "src/"
+            "Spray\\PersistenceBundle": "src/"
         }
     }
 }
