@@ -7,7 +7,7 @@ namespace Spray\PersistenceBundle\EntityFilter;
  *
  * @author MHWK
  */
-interface FilterManagerInterface extends EntityFilterInterface
+interface FilterAggregateInterface extends EntityFilterInterface
 {
     /**
      * Add a filter

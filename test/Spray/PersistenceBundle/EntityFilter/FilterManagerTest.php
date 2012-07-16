@@ -29,28 +29,52 @@ class FilterManagerTest extends TestCase
         $this->filter4 = $this->getMock('Spray\PersistenceBundle\EntityFilter\EntityFilterInterface');
         $this->prioritizedFilter1 = $this->getMock('Spray\PersistenceBundle\EntityFilter\PrioritizedFilterInterface');
         $this->prioritizedFilter2 = $this->getMock('Spray\PersistenceBundle\EntityFilter\PrioritizedFilterInterface');
+        $this->conflictingFilter1 = $this->getMock('Spray\PersistenceBundle\EntityFilter\ConflictingFilterInterface');
+        
+        $this->filter1->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue('filter1'));
+        $this->filter2->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue('filter2'));
+        $this->filter3->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue('filter3'));
+        $this->filter4->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue('filter4'));
+        
+        $this->prioritizedFilter1->expects($this->any())
+            ->method('getPriority')
+            ->will($this->returnValue(10));
+        $this->prioritizedFilter1->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue('prioritizedFilter1'));
+        $this->prioritizedFilter2->expects($this->any())
+            ->method('getPriority')
+            ->will($this->returnValue(20));
+        $this->prioritizedFilter2->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue('prioritizedFilter2'));
+        
+        $this->conflictingFilter1->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue('conflictingFilter1'));
     }
     
     public function testLowIsBeforeHigh()
     {
-        $this->prioritizedFilter1->expects($this->once())
-            ->method('getPriority')
-            ->will($this->returnValue(20));
-        $this->prioritizedFilter2->expects($this->once())
-            ->method('getPriority')
-            ->will($this->returnValue(1));
-        
         $filterManager = new FilterManager();
-        $filterManager->addFilter($this->prioritizedFilter1);
         $filterManager->addFilter($this->prioritizedFilter2);
+        $filterManager->addFilter($this->prioritizedFilter1);
         
         $expectedOrder = array(
-            1 => $this->prioritizedFilter2,
-            2 => $this->prioritizedFilter1,
+            1 => 'prioritizedFilter1',
+            2 => 'prioritizedFilter2',
         );
         
         foreach ($filterManager as $key => $filter) {
-            $this->assertSame($expectedOrder[$key], $filter);
+            $this->assertSame($expectedOrder[$key], $filter->getName());
         }
     }
     
@@ -63,37 +87,42 @@ class FilterManagerTest extends TestCase
         $filterManager->addFilter($this->filter4);
         
         $expectedOrder = array(
-            1 => $this->filter1,
-            2 => $this->filter2,
-            3 => $this->filter3,
-            4 => $this->filter4,
+            1 => 'filter1',
+            2 => 'filter2',
+            3 => 'filter3',
+            4 => 'filter4',
         );
         
         foreach ($filterManager as $key => $filter) {
-            $this->assertSame($expectedOrder[$key], $filter);
+            $this->assertSame($expectedOrder[$key], $filter->getName());
         }
     }
     
     public function testHasFilter()
     {
-        $this->filter1->expects($this->once())
-            ->method('getName')
-            ->will($this->returnValue('foo'));
         $filterManager = new FilterManager();
         $filterManager->addFilter($this->filter1);
-        $this->assertTrue($filterManager->hasFilter('foo'));
+        $this->assertTrue($filterManager->hasFilter('filter1'));
     }
     
     public function testRemoveFilter()
     {
-        $this->filter1->expects($this->any())
-            ->method('getName')
-            ->will($this->returnValue('foo'));
         $this->filter1->expects($this->never())
             ->method('filter');
         $filterManager = new FilterManager();
         $filterManager->addFilter($this->filter1);
-        $filterManager->removeFilter('foo');
+        $filterManager->removeFilter('filter1');
         $filterManager->filter($this->queryBuilder);
+    }
+    
+    public function testRemoveConflictingFilters()
+    {
+        $this->conflictingFilter1->expects($this->any())
+            ->method('getConflictingFilters')
+            ->will($this->returnValue(array('filter1')));
+        $filterManager = new FilterManager();
+        $filterManager->addFilter($this->filter1);
+        $filterManager->addFilter($this->conflictingFilter1);
+        $this->assertFalse($filterManager->hasFilter('filter1'));
     }
 }

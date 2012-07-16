@@ -2,25 +2,25 @@
 
 namespace Spray\PersistenceBundle\EntityFilter;
 
-use ArrayObject;
 use Doctrine\ORM\QueryBuilder;
+use InvalidArgumentException;
 use IteratorAggregate;
 use SplPriorityQueue;
+use UnexpectedValueException;
 
 /**
  * FilterManager
  *
  * @author MHWK
  */
-class FilterManager implements FilterManagerInterface, IteratorAggregate
+class FilterManager implements FilterAggregateInterface, IteratorAggregate
 {
-    private $nameIndex = array();
-    private $priorityIndex;
-    private $priorityIndexOrder = 0;
+    private $index = array();
+    private $queue;
+    private $queueOrder = 0;
     
     public function __construct()
     {
-        $this->priorityIndex = new SplPriorityQueue();
         $this->configure();
     }
     
@@ -34,25 +34,45 @@ class FilterManager implements FilterManagerInterface, IteratorAggregate
         
     }
     
+    /**
+     * Build a SplPriorityQueue if not already and returns a clone
+     * 
+     * @return SplPriorityQueue
+     */
     public function getIterator()
     {
-        return clone $this->priorityIndex;
+        if (null === $this->queue) {
+            $this->queue = new SplPriorityQueue();
+            $this->queueOrder = 0;
+            foreach ($this->index as $data) {
+                $this->queue->insert(
+                    $data['filter'],
+                    array($data['priority'], $this->queueOrder++)
+                );
+            }
+        }
+        return clone $this->queue;
     }
     
+    /**
+     * @inheritdoc
+     */
     public function addFilter(EntityFilterInterface $filter)
     {
+        if ($filter instanceof ConflictingFilterInterface) {
+            if ($this->hasConflictingFilters($filter)) {
+                $this->removeConflictingFilters($filter);
+            }
+        }
         if ($filter instanceof PrioritizedFilterInterface) {
             $priority = $filter->getPriority();
         } else {
             $priority = 0;
         }
-        $this->nameIndex[$filter->getName()] = array(
+        $this->index[$filter->getName()] = array(
             'priority' => $priority,
             'filter'   => $filter,
         );
-        $this->priorityIndex->insert($filter, array(
-            $priority, $this->priorityIndexOrder++
-        ));
     }
     
     /**
@@ -64,11 +84,11 @@ class FilterManager implements FilterManagerInterface, IteratorAggregate
             $filter = $filter->getName();
         }
         if ( ! is_string($filter)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 '$filter must be either an instance of EntityFilterInterface or the name of the filter as a string'
             );
         }
-        return isset($this->nameIndex[$filter]);
+        return isset($this->index[$filter]);
     }
     
     /**
@@ -80,7 +100,7 @@ class FilterManager implements FilterManagerInterface, IteratorAggregate
             $filter = $filter->getName();
         }
         if ( ! is_string($filter)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 '$filter must be either an instance of EntityFilterInterface or the name of the filter as a string'
             );
         }
@@ -89,12 +109,38 @@ class FilterManager implements FilterManagerInterface, IteratorAggregate
                 'Cannot remove filter that was never added'
             );
         }
-        unset($this->nameIndex[$filter]);
-        $this->priorityIndex = new SplPriorityQueue();
-        foreach ($this->nameIndex as $key => $data) {
-            $this->priorityIndex->insert($data['filter'], array(
-                $data['priority'], $this->priorityIndexOrder
-            ));
+        unset($this->index[$filter]);
+        $this->queue = null;
+    }
+    
+    /**
+     * Test if the repository contains filters that conflict with $filter
+     * 
+     * @param ConflictingFilterInterface $filter
+     * @return boolean
+     */
+    public function hasConflictingFilters(ConflictingFilterInterface $filter)
+    {
+        foreach ((array) $filter->getConflictingFilters() as $filterName) {
+            if ($this->hasFilter($filterName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Removes the filters that conflict with $filter
+     * 
+     * @param ConflictingFilterInterface $filter
+     */
+    public function removeConflictingFilters(ConflictingFilterInterface $filter)
+    {
+        foreach ((array) $filter->getConflictingFilters() as $filterName) {
+            if ( ! $this->hasFilter($filterName)) {
+                continue;
+            }
+            $this->removeFilter($filterName);
         }
     }
 
