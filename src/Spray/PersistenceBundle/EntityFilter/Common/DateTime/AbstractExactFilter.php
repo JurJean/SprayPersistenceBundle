@@ -7,7 +7,7 @@ namespace Spray\PersistenceBundle\EntityFilter\Common\DateTime;
  *
  * @author MHWK
  */
-abstract class AbstractBeforeFilter extends AbstractDateTimeFilter
+abstract class AbstractExactFilter extends AbstractDateTimeFilter
 {
-    protected $comparison = "<=";
+    protected $comparison = "=";
 }
