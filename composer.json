@@ -2,6 +2,8 @@
     "name": "jurjean/spray-persistence-bundle",
     "minimum-stability": "dev",
     "require": {
+        "doctrine/common": "2.*",
+        "doctrine/dbal": "2.*",
         "doctrine/orm": "2.*",
         "symfony/dependency-injection": "2.1.*",
         "symfony/http-kernel": "2.1.*"
