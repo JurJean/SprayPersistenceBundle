@@ -3,6 +3,7 @@ Spray\PersistenceBundle
 
 A Symfony2 bundle that enhances Doctrine2 repository functionality.
 
+[![Build Status](https://secure.travis-ci.org/JurJean/SprayPersistenceBundle.png?branch=master)](http://travis-ci.org/JurJean/SprayPersistenceBundle)
 
 EntityFilters
 -------------
