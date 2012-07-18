@@ -69,6 +69,7 @@ class FilterManager implements FilterAggregateInterface, IteratorAggregate
         } else {
             $priority = 0;
         }
+        $this->queue = null;
         $this->index[$filter->getName()] = array(
             'priority' => $priority,
             'filter'   => $filter,

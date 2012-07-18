@@ -98,6 +98,18 @@ class FilterManagerTest extends TestCase
         }
     }
     
+    public function testAddFilterAfterFilterCall()
+    {
+        $this->filter2->expects($this->once())
+            ->method('filter')
+            ->with($this->equalTo($this->queryBuilder));
+        $filterManager = new FilterManager();
+        $filterManager->addFilter($this->filter1);
+        $filterManager->filter($this->queryBuilder);
+        $filterManager->addFilter($this->filter2);
+        $filterManager->filter($this->queryBuilder);
+    }
+    
     public function testHasFilter()
     {
         $filterManager = new FilterManager();
