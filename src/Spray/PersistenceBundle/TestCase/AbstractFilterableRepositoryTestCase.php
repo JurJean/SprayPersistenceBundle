@@ -1,0 +1,106 @@
+<?php
+
+namespace Spray\PersistenceBundle\TestCase;
+
+use PHPUnit_Framework_TestCase as TestCase;
+
+/**
+ * FilterableRepositoryTestCase
+ */
+abstract class AbstractFilterableRepositoryTestCase extends TestCase
+{
+    protected static $kernel;
+    protected static $container;
+    
+    /**
+     * Currenlty you need to define the paths to your data fixtures
+     * 
+     * @var array
+     */
+    protected $dataFixturePaths = array();
+    
+    /**
+     * If $entityName is set, you can call getRepository() without passing a
+     * specific entity name
+     * 
+     * @var string
+     */
+    protected $entityName;
+
+    /**
+     * Set up the app kernel
+     * 
+     * @return void
+     */
+    public static function setUpBeforeClass()
+    {
+        self::$kernel = new \AppKernel('test', true);
+        self::$kernel->boot();
+
+        self::$container = self::$kernel->getContainer();
+    }
+    
+    /**
+     * Reload schema and data fixtures on set up
+     * 
+     * @return void
+     */
+    public function setUp()
+    {
+        $this->reloadSchema();
+        $this->reloadDataFixtures();
+    }
+    
+    /**
+     * Reload the db schema
+     * 
+     * @return void
+     */
+    public function reloadSchema()
+    {
+        $em = self::$container->get('doctrine.orm.entity_manager');
+        $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
+        $tool->dropSchema($em->getMetadataFactory()->getAllMetadata());
+        $tool->createSchema($em->getMetadataFactory()->getAllMetadata());
+    }
+    
+    /**
+     * Reload data fixtures from path specified in $this->dataFixturesPaths
+     * 
+     * @return void
+     */
+    protected function reloadDataFixtures()
+    {
+        $em = self::$container->get('doctrine.orm.entity_manager');
+        $loader = new Loader;
+        foreach ($this->dataFixturePaths as $path) {
+            $loader->loadFromDirectory($path);
+        }
+        $purger = new ORMPurger($em);
+        $executor = new ORMExecutor($em, $purger);
+        $executor->execute($loader->getFixtures());
+    }
+    
+    /**
+     * Create a new repository for $entityName - if $entityName is null,
+     * $this->entityName is used
+     * 
+     * @param null|string $entityName
+     * @return EntityRepository
+     * @throws UnexpectedValueException if both $entityName and
+     *         $this->entityName are null
+     */
+    protected function createRepository($entityName = null)
+    {
+        if (null === $entityName) {
+            if (null === $this->entityName) {
+                throw new UnexpectedValueException(
+                    'Please provide entity name in overriding class or as first argument'
+                );
+            }
+            $entityName = $this->entityName;
+        }
+        $em = self::$container->get('doctrine.orm.entity_manager');
+        return $em->getRepository($entityName);
+    }
+}
