@@ -17,7 +17,7 @@ class FilterableEntityRepositoryTest extends TestCase
     {
         $this->entityManager = $this->getMock('Doctrine\ORM\EntityManager', array(), array(), '', false);
         $this->classMetadata = $this->getMock('Doctrine\ORM\Mapping\ClassMetadata', array(), array(), '', false);
-        $this->queryBuilder = $this->getMock('Doctrine\ORM\QueryBuilder', array(), array(), '', false);
+        $this->queryBuilder = $this->getMock('Doctrine\ORM\QueryBuilder', array(), array($this->entityManager));
         $this->filterManager = $this->getMock('Spray\PersistenceBundle\EntityFilter\FilterAggregateInterface');
         $this->filter = $this->getMock('Spray\PersistenceBundle\EntityFilter\EntityFilterInterface');
     }

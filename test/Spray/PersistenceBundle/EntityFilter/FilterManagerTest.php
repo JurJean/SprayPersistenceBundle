@@ -12,6 +12,7 @@ use Spray\PersistenceBundle\EntityFilter\FilterManager;
  */
 class FilterManagerTest extends TestCase
 {
+    private $entityManager;
     private $queryBuilder;
     private $filter1;
     private $filter2;
@@ -22,7 +23,8 @@ class FilterManagerTest extends TestCase
     
     public function setUp()
     {
-        $this->queryBuilder = $this->getMock('Doctrine\ORM\QueryBuilder', array(), array(), '', false);
+        $this->entityManager = $this->getMock('Doctrine\ORM\EntityManager', array(), array(), '', false);
+        $this->queryBuilder = $this->getMock('Doctrine\ORM\QueryBuilder', array(), array($this->entityManager));
         $this->filter1 = $this->getMock('Spray\PersistenceBundle\EntityFilter\EntityFilterInterface');
         $this->filter2 = $this->getMock('Spray\PersistenceBundle\EntityFilter\EntityFilterInterface');
         $this->filter3 = $this->getMock('Spray\PersistenceBundle\EntityFilter\EntityFilterInterface');
