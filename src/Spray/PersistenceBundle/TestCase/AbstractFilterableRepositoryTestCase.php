@@ -2,6 +2,8 @@
 
 namespace Spray\PersistenceBundle\TestCase;
 
+require 'app/AppKernel.php';
+
 use PHPUnit_Framework_TestCase as TestCase;
 
 /**
@@ -58,7 +60,7 @@ abstract class AbstractFilterableRepositoryTestCase extends TestCase
      */
     public function reloadSchema()
     {
-        $em = self::$container->get('doctrine.orm.entity_manager');
+        $em = $this->getEntityManager();
         $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
         $tool->dropSchema($em->getMetadataFactory()->getAllMetadata());
         $tool->createSchema($em->getMetadataFactory()->getAllMetadata());
@@ -71,7 +73,7 @@ abstract class AbstractFilterableRepositoryTestCase extends TestCase
      */
     protected function reloadDataFixtures()
     {
-        $em = self::$container->get('doctrine.orm.entity_manager');
+        $em = $this->getEntityManager();
         $loader = new Loader;
         foreach ($this->dataFixturePaths as $path) {
             $loader->loadFromDirectory($path);
@@ -79,6 +81,16 @@ abstract class AbstractFilterableRepositoryTestCase extends TestCase
         $purger = new ORMPurger($em);
         $executor = new ORMExecutor($em, $purger);
         $executor->execute($loader->getFixtures());
+    }
+    
+    /**
+     * Get the entity manager
+     * 
+     * @return EntityManager
+     */
+    protected function getEntityManager()
+    {
+        return self::$container->get('doctrine.orm.entity_manager');
     }
     
     /**
@@ -100,7 +112,6 @@ abstract class AbstractFilterableRepositoryTestCase extends TestCase
             }
             $entityName = $this->entityName;
         }
-        $em = self::$container->get('doctrine.orm.entity_manager');
-        return $em->getRepository($entityName);
+        return $this->getEntityManager()->getRepository($entityName);
     }
 }
