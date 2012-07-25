@@ -165,16 +165,15 @@ class FilterableEntityRepository extends DoctrineEntityRepository
         $this->getFilterManager()->addFilter($filter);
     }
     
-    public function preFilterQueryBuilder(QueryBuilder $qb)
-    {
-        
-    }
-    
+    /**
+     * Filter passed $qb
+     * 
+     * @param QueryBuilder $qb
+     * @return QueryBuilder
+     */
     public function filterQueryBuilder(QueryBuilder $qb)
     {
-        $this->preFilterQueryBuilder($qb);
         $this->getFilterManager()->filter($qb);
-        $this->postFilterQueryBuilder($qb);
         return $qb;
     }
     
