@@ -4,7 +4,14 @@ namespace Spray\PersistenceBundle\TestCase;
 
 require 'app/AppKernel.php';
 
+use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
+use Doctrine\Common\DataFixtures\Loader;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit_Framework_TestCase as TestCase;
+use UnexpectedValueException;
 
 /**
  * FilterableRepositoryTestCase
@@ -61,7 +68,7 @@ abstract class AbstractFilterableRepositoryTestCase extends TestCase
     public function reloadSchema()
     {
         $em = $this->getEntityManager();
-        $tool = new \Doctrine\ORM\Tools\SchemaTool($em);
+        $tool = new SchemaTool($em);
         $tool->dropSchema($em->getMetadataFactory()->getAllMetadata());
         $tool->createSchema($em->getMetadataFactory()->getAllMetadata());
     }
