@@ -14,7 +14,8 @@ use Spray\PersistenceBundle\EntityFilter\FilterManager;
 /**
  * A filterable entity repository
  * 
- * Instead of just passing data around, this Repository has a state 
+ * Instead of just passing data around, this Repository has a state that you can
+ * alter with the use of EntityFilters.
  *
  * @author MHWK
  */
@@ -175,11 +176,6 @@ class FilterableEntityRepository extends DoctrineEntityRepository
         $this->getFilterManager()->filter($qb);
         $this->postFilterQueryBuilder($qb);
         return $qb;
-    }
-    
-    public function postFilterQueryBuilder(QueryBuilder $qb)
-    {
-        
     }
     
     /**

@@ -8,6 +8,9 @@
         "symfony/dependency-injection": "2.1.*",
         "symfony/http-kernel": "2.1.*"
     },
+    "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "dev-master"
+    },
     "autoload": {
         "psr-0": {
             "Spray\\PersistenceBundle": "src/"
