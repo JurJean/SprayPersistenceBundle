@@ -3,9 +3,10 @@ Spray\PersistenceBundle
 
 A Symfony2 bundle that enhances Doctrine2 repository functionality.
 
+[![Build Status](https://secure.travis-ci.org/JurJean/SprayPersistenceBundle.png?branch=master)](http://travis-ci.org/JurJean/SprayPersistenceBundle)
 
-EntityFilters
--------------
+The problem
+-----------
 
 Doctrine2 provides a nice api that lets you query for your entities through the
 Repository. However the implemented Repository pattern is not very DRY. If you
@@ -68,3 +69,60 @@ FilterableEntityRepository comes in. The above logic can be rewritten as:
     $repository->filter(new EntityPublished());
     $repository->filter(new EntityBeforeDate());
     $repository->filter(new EntityWithinRadius());
+
+Prioritized filters
+-------------------
+
+You may want a filter to be prioritized. To do so you must implement the
+PrioritizedFilterInterface:
+
+    use Doctrine\ORM\QueryBuilder;
+    use Spray\PersistenceBundle\EntityFilter\PrioritizedFilterInterface;
+
+    class PrioritizedFilter implements PrioritizedFilterInterface
+    {
+        public function filter(QueryBuilder $qb)
+        {
+            // Do stuff
+        }
+
+        public function getName()
+        {
+            return 'prioritized_filter';
+        }
+
+        public function getPriority()
+        {
+            return 100;
+        }
+    }
+    
+    $repository->filter(new PrioritizedFilter()); // Added at priority level 100
+
+Conflicting filters
+-------------------
+
+If you have two filters that can conflict with another (for instance if they
+create a where statement on the same column) you may implement the
+ConflictingFilterInterface:
+
+    use Doctrine\ORM\QueryBuilder;
+    use Spray\PersistenceBundle\EntityFilter\ConflictingFilterInterface;
+
+    class ConflictingFilter implements ConflictingFilterInterface
+    {
+        public function filter(QueryBuilder $qb)
+        {
+            // Do stuff
+        }
+
+        public function getName()
+        {
+            return 'conflicting_filter';
+        }
+
+        public function getConflictingFilters()
+        {
+            return array('another_filter');
+        }
+    }

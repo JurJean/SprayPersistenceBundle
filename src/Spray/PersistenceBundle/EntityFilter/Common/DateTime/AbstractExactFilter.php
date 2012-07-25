@@ -1,6 +1,6 @@
 <?php
 
-namespace Spray\PersistenceBundle\EntityFilter\DateTime;
+namespace Spray\PersistenceBundle\EntityFilter\Common\DateTime;
 
 /**
  * Before

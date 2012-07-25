@@ -4,11 +4,12 @@ namespace Spray\PersistenceBundle\Repository;
 
 use Countable;
 use Doctrine\ORM\EntityRepository as DoctrineEntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
 use Iterator;
-use Spray\PersistenceBundle\EntityFilter\ConflictingFilterInterface;
 use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
-use Spray\PersistenceBundle\EntityFilter\FilterChain;
+use Spray\PersistenceBundle\EntityFilter\FilterAggregateInterface;
+use Spray\PersistenceBundle\EntityFilter\FilterManager;
 
 /**
  * A filterable entity repository
@@ -31,10 +32,32 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     private $index = 0;
     
     /**
-     * @var FilterChain
+     * @var FilterManager
      */
-    private $filterChain;
+    private $filterManager;
     
+    /**
+     * Adds a call to configure()
+     * 
+     * @inheritdoc
+     */
+    public function __construct($em, ClassMetadata $class)
+    {
+        parent::__construct($em, $class);
+        $this->configure();
+    }
+    
+    /**
+     * Override to implement configuration
+     * 
+     * @return void
+     */
+    protected function configure()
+    {
+        
+    }
+
+
     /**
      * Load data if not already and return it. Important to call by reference
      * to avoid array copies
@@ -53,24 +76,24 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     /**
      * Set the filter chain
      * 
-     * @param FilterChain $filterChain
+     * @param FilterManager $filterManager
      */
-    public function setFilterChain(FilterChain $filterChain)
+    public function setFilterManager(FilterAggregateInterface $filterManager)
     {
-        $this->filterChain = $filterChain;
+        $this->filterManager = $filterManager;
     }
     
     /**
      * Get the filter chain
      * 
-     * @return FilterChain
+     * @return FilterManager
      */
-    public function getFilterChain()
+    public function getFilterManager()
     {
-        if (null === $this->filterChain) {
-            $this->setFilterChain(new FilterChain());
+        if (null === $this->filterManager) {
+            $this->setFilterManager(new FilterManager());
         }
-        return $this->filterChain;
+        return $this->filterManager;
     }
     
     /**
@@ -133,46 +156,12 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     }
     
     /**
-     * Test if the repository contains filters that conflict with $filter
-     * 
-     * @param \Spray\PersistenceBundle\EntityFilter\ConflictingFilterInterface $filter
-     * @return boolean
-     */
-    public function containsConflictingFilters(ConflictingFilterInterface $filter)
-    {
-        foreach ((array) $filter->getConflictingFilters() as $filterName) {
-            if ($this->getFilterChain()->offsetExists($filterName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /**
-     * Removes the filters that conflict with $filter
-     * 
-     * @param ConflictingFilterInterface $filter
-     */
-    public function removeConflictingFilters(ConflictingFilterInterface $filter)
-    {
-        foreach ((array) $filter->getConflictingFilters() as $filterName) {
-            if ( ! $this->getFilterChain()->offsetExists($filterName)) {
-                continue;
-            }
-            $this->getFilterChain()->offsetUnset($filterName);
-        }
-    }
-    
-    /**
      * @inheritdoc
      */
     public function filter(EntityFilterInterface $filter)
     {
         $this->collection = null;
-        if ($filter instanceof ConflictingFilterInterface) {
-            $this->removeConflictingFilters($filter);
-        }
-        $this->getFilterChain()->offsetSet($filter->getName(), $filter);
+        $this->getFilterManager()->addFilter($filter);
     }
     
     public function preFilterQueryBuilder(QueryBuilder $qb)
@@ -183,7 +172,7 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     public function filterQueryBuilder(QueryBuilder $qb)
     {
         $this->preFilterQueryBuilder($qb);
-        $this->getFilterChain()->filter($qb);
+        $this->getFilterManager()->filter($qb);
         $this->postFilterQueryBuilder($qb);
         return $qb;
     }
@@ -199,7 +188,7 @@ class FilterableEntityRepository extends DoctrineEntityRepository
      * @param string $alias
      * @return QueryBuilder
      */
-    protected function createAndFilterQueryBuilder($alias)
+    public function createAndFilterQueryBuilder($alias)
     {
         return $this->filterQueryBuilder($this->createQueryBuilder($alias));
     }

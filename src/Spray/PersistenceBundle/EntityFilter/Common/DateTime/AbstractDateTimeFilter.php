@@ -1,6 +1,6 @@
 <?php
 
-namespace Spray\PersistenceBundle\EntityFilter\DateTime;
+namespace Spray\PersistenceBundle\EntityFilter\Common\DateTime;
 
 use DateTime;
 use Doctrine\ORM\QueryBuilder;
@@ -24,7 +24,7 @@ abstract class AbstractDateTimeFilter implements EntityFilterInterface
     
     public function filter(QueryBuilder $qb)
     {
-        $qb->where(sprintf(
+        $qb->andWhere(sprintf(
             '%s.%s %s :%s',
             $qb->getRootAlias(),
             $this->propertyName,

@@ -8,7 +8,7 @@ namespace Spray\PersistenceBundle\EntityFilter;
  *
  * @author MHWK
  */
-interface ConflictingFilterInterface
+interface ConflictingFilterInterface extends EntityFilterInterface
 {
     /**
      * Return which other filters this filter conflicts with. Return either the
