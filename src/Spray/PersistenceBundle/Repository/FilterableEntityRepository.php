@@ -115,7 +115,9 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     public function current()
     {
         if (null === $this->collection) {
-            return $this->find($this->createAndFilterQueryBuilder($this->getEntityName()));
+            $qb = $this->createAndFilterQueryBuilder($this->getEntityName());
+            $qb->setMaxResults(1);
+            return $qb->getQuery()->getSingleResult();
         }
         return $this->collection[$this->index];
     }
