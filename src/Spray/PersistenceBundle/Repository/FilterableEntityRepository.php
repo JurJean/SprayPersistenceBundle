@@ -115,7 +115,7 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     public function current()
     {
         if (null === $this->collection) {
-            $qb = $this->createAndFilterQueryBuilder($this->getEntityName());
+            $qb = $this->createAndFilterQueryBuilder($this->getEntityAlias());
             $qb->setMaxResults(1);
             return $qb->getQuery()->getSingleResult();
         }
@@ -198,6 +198,9 @@ class FilterableEntityRepository extends DoctrineEntityRepository
      */
     protected function getEntityAlias()
     {
+        if (false === strpos($this->getEntityName(), '\\')) {
+            return strtolower(substr($this->getEntityName(), 0, 1));
+        }
         return strtolower(substr(
             $this->getEntityName(),
             strrpos($this->getEntityName(), '\\') + 1,
