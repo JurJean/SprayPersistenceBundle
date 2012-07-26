@@ -47,7 +47,7 @@ class FilterManager implements FilterAggregateInterface, IteratorAggregate
             foreach ($this->index as $data) {
                 $this->queue->insert(
                     $data['filter'],
-                    array($data['priority'], $this->queueOrder++)
+                    array($data['priority'], $this->queueOrder--)
                 );
             }
         }
@@ -154,6 +154,6 @@ class FilterManager implements FilterAggregateInterface, IteratorAggregate
     
     public function getName()
     {
-        return 'chain';
+        return 'manager';
     }
 }
