@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit_Framework_TestCase as TestCase;
+use RuntimeException;
 use UnexpectedValueException;
 
 /**
@@ -20,6 +21,9 @@ abstract class AbstractFilterableRepositoryTestCase extends TestCase
 {
     protected static $kernel;
     protected static $container;
+    private $schemaReloaded = false;
+    private $fixturesReloaded = false;
+    private $entityManager;
     
     /**
      * Currenlty you need to define the paths to your data fixtures
@@ -71,6 +75,7 @@ abstract class AbstractFilterableRepositoryTestCase extends TestCase
         $tool = new SchemaTool($em);
         $tool->dropSchema($em->getMetadataFactory()->getAllMetadata());
         $tool->createSchema($em->getMetadataFactory()->getAllMetadata());
+        $this->schemaReloaded = true;
     }
     
     /**
@@ -88,6 +93,7 @@ abstract class AbstractFilterableRepositoryTestCase extends TestCase
         $purger = new ORMPurger($em);
         $executor = new ORMExecutor($em, $purger);
         $executor->execute($loader->getFixtures());
+        $this->fixturesReloaded = true;
     }
     
     /**
@@ -97,7 +103,10 @@ abstract class AbstractFilterableRepositoryTestCase extends TestCase
      */
     protected function getEntityManager()
     {
-        return self::$container->get('doctrine.orm.entity_manager');
+        if (null === $this->entityManager) {
+            $this->entityManager = clone self::$container->get('doctrine.orm.entity_manager');
+        }
+        return $this->entityManager;
     }
     
     /**
@@ -111,6 +120,9 @@ abstract class AbstractFilterableRepositoryTestCase extends TestCase
      */
     protected function createRepository($entityName = null)
     {
+        if ( ! $this->schemaReloaded || ! $this->fixturesReloaded) {
+            throw new RuntimeException('Schema or fixures not reloaded, did you call parent::setUp()?');
+        }
         if (null === $entityName) {
             if (null === $this->entityName) {
                 throw new UnexpectedValueException(
