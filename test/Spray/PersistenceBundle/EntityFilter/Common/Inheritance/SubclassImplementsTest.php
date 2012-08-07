@@ -12,6 +12,7 @@ class SubclassImplementsTest extends TestCase
 {
     private $queryBuilder;
     private $em;
+    private $expressionBuilder;
     private $classMetadata;
     
     public function setUp()
@@ -20,6 +21,9 @@ class SubclassImplementsTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $this->em = $this->getMockBuilder('Doctrine\ORM\EntityManager')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->expressionBuilder = $this->getMockBuilder('Doctrine\DBAL\Query\Expression\ExpressionBuilder')
             ->disableOriginalConstructor()
             ->getMock();
         $this->classMetadata = new ClassMetadata('FooClass');
@@ -33,6 +37,9 @@ class SubclassImplementsTest extends TestCase
         $this->queryBuilder->expects($this->any())
             ->method('getRootAlias')
             ->will($this->returnValue('s'));
+        $this->queryBuilder->expects($this->any())
+            ->method('expr')
+            ->will($this->returnValue($this->expressionBuilder));
         $this->em->expects($this->any())
             ->method('getClassMetadata')
             ->with($this->equalTo('Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestBaseClass'))
@@ -66,16 +73,17 @@ class SubclassImplementsTest extends TestCase
     
     public function testFilterByInterface()
     {
-        $this->classMetadata->discriminatorColumn = array(
-            'fieldName' => 'discriminator'
-        );
         $this->classMetadata->discriminatorMap    = array(
             'unexpected' => 'Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestUnexpectedSubClass',
             'expected'   => 'Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestExpectedSubClass',
         );
+        $this->expressionBuilder->expects($this->once())
+            ->method('orX')
+            ->with($this->equalTo('s INSTANCE OF Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestExpectedSubClass'))
+            ->will($this->returnValue('instanceof'));
         $this->queryBuilder->expects($this->once())
             ->method('andWhere')
-            ->with($this->equalTo('s.discriminator IN (\'expected\')'));
+            ->with($this->equalTo('instanceof'));
         $this->createFilter()->filter($this->queryBuilder);
     }
     

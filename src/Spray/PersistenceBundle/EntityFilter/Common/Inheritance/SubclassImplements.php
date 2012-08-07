@@ -36,8 +36,11 @@ class SubclassImplements implements EntityFilterInterface
      * @return string
      * @throws UnexpectedValueException
      */
-    public function findImplementingSubClasses(ClassMetadata $classMetadata)
+    public function findImplementingSubClasses(QueryBuilder $qb)
     {
+        $em = $qb->getEntityManager();
+        $rootEntities = $qb->getRootEntities();
+        $classMetadata = $em->getClassMetadata($rootEntities[0]);
         if (empty($classMetadata->discriminatorMap)) {
             throw new UnexpectedValueException(sprintf(
                 'No discriminator map found for %s',
@@ -48,7 +51,11 @@ class SubclassImplements implements EntityFilterInterface
         foreach ($classMetadata->discriminatorMap as $key => $className) {
             $reflection = new ReflectionClass($className);
             if ($reflection->implementsInterface($this->interface)) {
-                $result[] = "'" . $key . "'";
+                $result[] = sprintf(
+                   '%s INSTANCE OF %s',
+                    $qb->getRootAlias(),
+                    $className
+                );
             }
         }
         return $result;
@@ -59,11 +66,7 @@ class SubclassImplements implements EntityFilterInterface
      */
     public function filter(QueryBuilder $qb)
     {
-        $em = $qb->getEntityManager();
-        $rootEntities = $qb->getRootEntities();
-        $classMetadata = $em->getClassMetadata($rootEntities[0]);
-        $implementingSubClasses = $this->findImplementingSubClasses($classMetadata);
-        
+        $implementingSubClasses = $this->findImplementingSubClasses($qb);
         if (empty($implementingSubClasses)) {
 //            $qb->andWhere(sprintf(
 //                '%s.%s IN (null)',
@@ -73,11 +76,9 @@ class SubclassImplements implements EntityFilterInterface
             return;
         }
         
-        $qb->andWhere(sprintf(
-            '%s.%s IN (%s)',
-            $qb->getRootAlias(),
-            $classMetadata->discriminatorColumn['fieldName'],
-            implode(',', $implementingSubClasses)
+        $qb->andWhere(call_user_func_array(
+            array($qb->expr(), 'orX'),
+            $implementingSubClasses
         ));
     }
 
