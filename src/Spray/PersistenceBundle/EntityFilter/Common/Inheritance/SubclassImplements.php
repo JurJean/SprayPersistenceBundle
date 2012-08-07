@@ -5,13 +5,14 @@ namespace Spray\PersistenceBundle\EntityFilter\Common\Inheritance;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
 use ReflectionClass;
+use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
 use UnexpectedValueException;
 
 /**
  * Allows filtering of subclasses of a mapped superclass that implement specific
  * interfaces
  */
-class SubclassImplements
+class SubclassImplements implements EntityFilterInterface
 {
     /**
      * @var string
@@ -31,7 +32,7 @@ class SubclassImplements
     /**
      * Find all classes that implement $this->interface from $classMetadata
      * 
-     * @param \Doctrine\ORM\Mapping\ClassMetadata $classMetadata
+     * @param ClassMetadata $classMetadata
      * @return string
      * @throws UnexpectedValueException
      */

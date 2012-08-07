@@ -40,6 +40,14 @@ class SubclassImplementsTest extends TestCase
         return new SubclassImplements('Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestInterface');
     }
     
+    public function testIsFilter()
+    {
+        $this->assertInstanceOf(
+            'Spray\PersistenceBundle\EntityFilter\EntityFilterInterface',
+            $this->createFilter()
+        );
+    }
+    
     public function testName()
     {
         $this->assertEquals('subclass_implements', $this->createFilter()->getName());
