@@ -28,10 +28,14 @@ class SubclassImplementsTest extends TestCase
             ->method('getEntityManager')
             ->will($this->returnValue($this->em));
         $this->queryBuilder->expects($this->any())
+            ->method('getRootEntities')
+            ->will($this->returnValue(array('Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestBaseClass')));
+        $this->queryBuilder->expects($this->any())
             ->method('getRootAlias')
             ->will($this->returnValue('s'));
         $this->em->expects($this->any())
             ->method('getClassMetadata')
+            ->with($this->equalTo('Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestBaseClass'))
             ->will($this->returnValue($this->classMetadata));
     }
     

@@ -59,7 +59,8 @@ class SubclassImplements implements EntityFilterInterface
     public function filter(QueryBuilder $qb)
     {
         $em = $qb->getEntityManager();
-        $classMetadata = $em->getClassMetadata($qb->getRootEntities());
+        $rootEntities = $qb->getRootEntities();
+        $classMetadata = $em->getClassMetadata($rootEntities[0]);
         
         $qb->andWhere(sprintf(
             '%s.%s IN (%s)',
