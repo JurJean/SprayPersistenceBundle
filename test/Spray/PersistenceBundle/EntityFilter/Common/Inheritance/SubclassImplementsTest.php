@@ -57,17 +57,18 @@ class SubclassImplementsTest extends TestCase
         $this->assertEquals('subclass_implements', $this->createFilter()->getName());
     }
     
-    public function testFailIsNotAMappedSuperClass()
+    public function testFailDiscriminatorMapIsEmpty()
     {
         $this->setExpectedException('UnexpectedValueException');
-        $this->classMetadata->isMappedSuperclass = false;
+        $this->classMetadata->discriminatorMap = array();
         $this->createFilter()->filter($this->queryBuilder);
     }
     
     public function testFilterByInterface()
     {
-        $this->classMetadata->isMappedSuperclass  = true;
-        $this->classMetadata->discriminatorColumn = 'discriminator';
+        $this->classMetadata->discriminatorColumn = array(
+            'fieldName' => 'discriminator'
+        );
         $this->classMetadata->discriminatorMap    = array(
             'unexpected' => 'Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestUnexpectedSubClass',
             'expected'   => 'Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestExpectedSubClass',
@@ -75,6 +76,19 @@ class SubclassImplementsTest extends TestCase
         $this->queryBuilder->expects($this->once())
             ->method('andWhere')
             ->with($this->equalTo('s.discriminator IN (\'expected\')'));
+        $this->createFilter()->filter($this->queryBuilder);
+    }
+    
+    public function testFilterNoInterface()
+    {
+        $this->classMetadata->discriminatorColumn = array(
+            'fieldName' => 'discriminator'
+        );
+        $this->classMetadata->discriminatorMap    = array(
+            'unexpected' => 'Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestUnexpectedSubClass',
+        );
+        $this->queryBuilder->expects($this->never())
+            ->method('andWhere');
         $this->createFilter()->filter($this->queryBuilder);
     }
 }

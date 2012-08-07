@@ -38,10 +38,11 @@ class SubclassImplements implements EntityFilterInterface
      */
     public function findImplementingSubClasses(ClassMetadata $classMetadata)
     {
-        if ( ! $classMetadata->isMappedSuperclass) {
-            throw new UnexpectedValueException(
-                'This filter is to be used by an entity that is a mapped superclass'
-            );
+        if (empty($classMetadata->discriminatorMap)) {
+            throw new UnexpectedValueException(sprintf(
+                'No discriminator map found for %s',
+                $classMetadata->name
+            ));
         }
         $result = array();
         foreach ($classMetadata->discriminatorMap as $key => $className) {
@@ -61,12 +62,22 @@ class SubclassImplements implements EntityFilterInterface
         $em = $qb->getEntityManager();
         $rootEntities = $qb->getRootEntities();
         $classMetadata = $em->getClassMetadata($rootEntities[0]);
+        $implementingSubClasses = $this->findImplementingSubClasses($classMetadata);
+        
+        if (empty($implementingSubClasses)) {
+//            $qb->andWhere(sprintf(
+//                '%s.%s IN (null)',
+//                $qb->getRootAlias(),
+//                $classMetadata->discriminatorColumn['fieldName']
+//            ));
+            return;
+        }
         
         $qb->andWhere(sprintf(
             '%s.%s IN (%s)',
             $qb->getRootAlias(),
-            $classMetadata->discriminatorColumn,
-            implode(',', $this->findImplementingSubClasses($classMetadata))
+            $classMetadata->discriminatorColumn['fieldName'],
+            implode(',', $implementingSubClasses)
         ));
     }
 
