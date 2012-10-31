@@ -70,7 +70,7 @@ class FilterableEntityRepositoryTest extends TestCase
             ->will($this->returnValue($this->queryBuilder));
         $this->queryBuilder->expects($this->any())
             ->method('select')
-            ->with($this->equalTo('f'))
+            ->with($this->equalTo('fc'))
             ->will($this->returnValue($this->queryBuilder));
         $this->queryBuilder->expects($this->any())
             ->method('from')

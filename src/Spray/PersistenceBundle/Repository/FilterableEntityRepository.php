@@ -191,20 +191,27 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     }
     
     /**
-     * Returns the lowercased first letter of the entity name without the
-     * namespace
+     * Returns all uppercase letters of the entity name without the
+     * namespace lowercased
      * 
      * @return string
      */
     protected function getEntityAlias()
     {
-        if (false === strpos($this->getEntityName(), '\\')) {
-            return strtolower(substr($this->getEntityName(), 0, 1));
+        $entityName = $this->getEntityName();
+        if (false !== strpos($entityName, '\\')) {
+            $entityName = substr(
+                $entityName,
+                strrpos($this->getEntityName(), '\\') + 1
+            );
         }
-        return strtolower(substr(
-            $this->getEntityName(),
-            strrpos($this->getEntityName(), '\\') + 1,
-            1
-        ));
+
+        $matches = array();
+        preg_match_all(
+            '/[A-Z]/',
+            $entityName,
+            $matches
+        );
+        return strtolower(implode('', $matches[0]));
     }
 }
