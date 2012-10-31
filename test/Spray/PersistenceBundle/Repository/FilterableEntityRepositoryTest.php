@@ -90,4 +90,27 @@ class FilterableEntityRepositoryTest extends TestCase
         $repository = $this->createRepository();
         $this->assertEquals('Foo', $repository->current());
     }
+    
+    public function testDisableHydration()
+    {
+        $this->entityManager->expects($this->any())
+            ->method('createQueryBuilder')
+            ->will($this->returnValue($this->queryBuilder));
+        $this->queryBuilder->expects($this->any())
+            ->method('select')
+            ->with($this->equalTo('fc'))
+            ->will($this->returnValue($this->queryBuilder));
+        $this->queryBuilder->expects($this->any())
+            ->method('from')
+            ->will($this->returnValue($this->queryBuilder));
+        $this->queryBuilder->expects($this->once())
+            ->method('getQuery')
+            ->will($this->returnValue($this->query));
+        $this->query->expects($this->once())
+            ->method('getScalarResult');
+        
+        $repository = $this->createRepository();
+        $repository->disableHydration();
+        $repository->valid();
+    }
 }

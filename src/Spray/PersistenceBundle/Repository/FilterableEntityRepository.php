@@ -23,6 +23,11 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     implements FilterableRepositoryInterface, Countable, Iterator
 {
     /**
+     * @var boolean
+     */
+    private $hydrate = true;
+    
+    /**
      * @var null|array
      */
     private $collection;
@@ -57,6 +62,36 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     {
         
     }
+    
+    /**
+     * Enable hydration (default)
+     * 
+     * @return void
+     */
+    public function enableHydration()
+    {
+        $this->hydrate = true;
+    }
+    
+    /**
+     * Disable hydration
+     * 
+     * @return void
+     */
+    public function disableHydration()
+    {
+        $this->hydrate = false;
+    }
+    
+    /**
+     * Test wether hydration is enabled
+     * 
+     * @return boolean
+     */
+    public function isHydrationDisabled()
+    {
+        return false === $this->hydrate;
+    }
 
 
     /**
@@ -69,7 +104,11 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     {
         if (null === $this->collection) {
             $qb = $this->createAndFilterQueryBuilder($this->getEntityAlias());
-            $this->collection = $qb->getQuery()->getResult();
+            if ($this->isHydrationDisabled()) {
+                $this->collection = $qb->getQuery()->getScalarResult();
+            } else {
+                $this->collection = $qb->getQuery()->getResult();
+            }
         }
         return $this->collection;
     }
