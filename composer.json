@@ -1,6 +1,6 @@
 {
     "name": "jurjean/spray-persistence-bundle",
-    "minimum-stability": "rc",
+    "minimum-stability": "dev",
     "require": {
         "doctrine/orm": "2.*",
         "doctrine/doctrine-bundle": "1.0.*",
