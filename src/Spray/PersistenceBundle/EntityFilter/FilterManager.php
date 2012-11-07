@@ -3,21 +3,18 @@
 namespace Spray\PersistenceBundle\EntityFilter;
 
 use Doctrine\ORM\QueryBuilder;
-use InvalidArgumentException;
-use IteratorAggregate;
 use SplPriorityQueue;
-use UnexpectedValueException;
 
 /**
  * FilterManager
  *
  * @author MHWK
  */
-class FilterManager implements FilterAggregateInterface, IteratorAggregate
+class FilterManager extends FilterChain
 {
-    private $index = array();
     private $queue;
     private $queueOrder = 0;
+    private $priorities = array();
     
     public function __construct()
     {
@@ -44,10 +41,10 @@ class FilterManager implements FilterAggregateInterface, IteratorAggregate
         if (null === $this->queue) {
             $this->queue = new SplPriorityQueue();
             $this->queueOrder = 0;
-            foreach ($this->index as $data) {
+            foreach (parent::getIterator() as $filter) {
                 $this->queue->insert(
-                    $data['filter'],
-                    array($data['priority'], $this->queueOrder--)
+                    $filter,
+                    array($this->priorities[$filter->getName()], $this->queueOrder--)
                 );
             }
         }
@@ -55,7 +52,7 @@ class FilterManager implements FilterAggregateInterface, IteratorAggregate
     }
     
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function addFilter(EntityFilterInterface $filter)
     {
@@ -70,47 +67,20 @@ class FilterManager implements FilterAggregateInterface, IteratorAggregate
             $priority = 0;
         }
         $this->queue = null;
-        $this->index[$filter->getName()] = array(
-            'priority' => $priority,
-            'filter'   => $filter,
-        );
+        $this->priorities[$filter->getName()] = $priority;
+        return parent::addFilter($filter);
     }
     
     /**
-     * @inheritdoc
-     */
-    public function hasFilter($filter)
-    {
-        if ($filter instanceof EntityFilterInterface) {
-            $filter = $filter->getName();
-        }
-        if ( ! is_string($filter)) {
-            throw new InvalidArgumentException(
-                '$filter must be either an instance of EntityFilterInterface or the name of the filter as a string'
-            );
-        }
-        return isset($this->index[$filter]);
-    }
-    
-    /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function removeFilter($filter)
     {
         if ($filter instanceof EntityFilterInterface) {
             $filter = $filter->getName();
         }
-        if ( ! is_string($filter)) {
-            throw new InvalidArgumentException(
-                '$filter must be either an instance of EntityFilterInterface or the name of the filter as a string'
-            );
-        }
-        if ( ! $this->hasFilter($filter)) {
-            throw new UnexpectedValueException(
-                'Cannot remove filter that was never added'
-            );
-        }
-        unset($this->index[$filter]);
+        parent::removeFilter($filter);
+        unset($this->priorities[$filter]);
         $this->queue = null;
     }
     
@@ -145,13 +115,9 @@ class FilterManager implements FilterAggregateInterface, IteratorAggregate
         }
     }
 
-    public function filter(QueryBuilder $qb)
-    {
-        foreach ($this as $filter) {
-            $filter->filter($qb);
-        }
-    }
-    
+    /**
+     * {@inheritdoc}
+     */
     public function getName()
     {
         return 'manager';
