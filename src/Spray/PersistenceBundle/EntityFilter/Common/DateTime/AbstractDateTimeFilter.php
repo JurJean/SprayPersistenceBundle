@@ -26,7 +26,7 @@ abstract class AbstractDateTimeFilter implements EntityFilterInterface
     {
         $qb->andWhere(sprintf(
             '%s.%s %s :%s',
-            $qb->getRootAlias(),
+            $qb->getRootAliases()[0],
             $this->propertyName,
             $this->comparison,
             $this->getName()
