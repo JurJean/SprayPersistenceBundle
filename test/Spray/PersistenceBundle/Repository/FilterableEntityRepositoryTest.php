@@ -63,6 +63,17 @@ class FilterableEntityRepositoryTest extends TestCase
         $repository->filterQueryBuilder($this->queryBuilder);
     }
     
+    public function testCloneAlsoClonesTheFilterManager()
+    {
+        $repository1 = $this->createRepository();
+        $repository2 = clone $repository1;
+        
+        $this->assertNotSame(
+            $repository1->getFilterManager(),
+            $repository2->getFilterManager()
+        );
+    }
+    
     public function testCurrentWithoutLoop()
     {
         $this->entityManager->expects($this->any())

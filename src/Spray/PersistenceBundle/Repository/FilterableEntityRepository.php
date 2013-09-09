@@ -54,6 +54,18 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     }
     
     /**
+     * Make sure everything is properly cloned
+     * 
+     * @return void
+     */
+    public function __clone()
+    {
+        if (null !== $this->filterManager) {
+            $this->filterManager = clone $this->filterManager;
+        }
+    }
+    
+    /**
      * Override to implement configuration
      * 
      * @return void
