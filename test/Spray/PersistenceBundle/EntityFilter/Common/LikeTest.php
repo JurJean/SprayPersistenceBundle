@@ -21,17 +21,17 @@ class LikeTest extends TestCase
         $count = 1;
 
         $this->queryBuilder->expects($this->at($count))
-            ->method('getRootAliases')
-            ->will($this->returnValue(array('a')));
-        $this->queryBuilder->expects($this->at($count))
-            ->method('andWhere')
-            ->with($this->equalTo('a.foo LIKE :incoming_foo'));
+             ->method('getRootAliases')
+             ->will($this->returnValue(array('a')));
         $this->queryBuilder->expects($this->at($count++))
-            ->method('setParameter')
-            ->with(
-                $this->equalTo('incoming_foo'),
-                $this->equalTo('%bar%')
-            );
+             ->method('andWhere')
+             ->with($this->equalTo('.foo LIKE :incoming_foo'));
+        $this->queryBuilder->expects($this->at($count++))
+             ->method('setParameter')
+             ->with(
+                 $this->equalTo('incoming_foo'),
+                 $this->equalTo('%bar%')
+             );
 
         $filter = new Like(array(
             'foo' => 'bar',
