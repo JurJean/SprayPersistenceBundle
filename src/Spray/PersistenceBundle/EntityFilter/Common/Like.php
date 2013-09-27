@@ -18,8 +18,9 @@ class Like extends AbstractLikeFilter implements EntityFilterInterface
      */
     public function filter(QueryBuilder $qb)
     {
+        $rootAliases = $qb->getRootAliases();
         foreach($this->arguments as $property => $value){
-            $qb->andWhere(sprintf('%s.%s LIKE :incoming_%2$s', $qb->getRootAliases()[0], $property));
+            $qb->andWhere(sprintf('%s.%s LIKE :incoming_%2$s', $rootAliases[0], $property));
             $qb->setParameter('incoming_' . $property, '%' . $value . '%');
         }
     }
