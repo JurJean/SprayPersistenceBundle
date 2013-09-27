@@ -1,6 +1,6 @@
 <?php
 
-namespace Spray\PersistenceBundle\EntityFilter\Common\DateTime;
+namespace Spray\PersistenceBundle\EntityFilter\Common;
 
 use DateTime;
 use Doctrine\ORM\QueryBuilder;
