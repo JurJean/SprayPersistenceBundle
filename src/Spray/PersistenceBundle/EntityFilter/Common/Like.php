@@ -6,6 +6,12 @@ use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
 
 class Like extends AbstractLikeFilter implements EntityFilterInterface
 {
+    private $arguments;
+
+    public function __construct(array $arguments)
+    {
+        $this->arguments = $arguments;
+    }
 
     /**
      * @inheritdoc
