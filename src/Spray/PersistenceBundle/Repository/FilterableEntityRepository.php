@@ -2,14 +2,7 @@
 
 namespace Spray\PersistenceBundle\Repository;
 
-use Countable;
 use Doctrine\ORM\EntityRepository as DoctrineEntityRepository;
-use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\QueryBuilder;
-use Iterator;
-use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
-use Spray\PersistenceBundle\EntityFilter\FilterAggregateInterface;
-use Spray\PersistenceBundle\EntityFilter\FilterManager;
 
 /**
  * A filterable entity repository
@@ -20,249 +13,86 @@ use Spray\PersistenceBundle\EntityFilter\FilterManager;
  * @author MHWK
  */
 class FilterableEntityRepository extends DoctrineEntityRepository
-    implements FilterableRepositoryInterface, Countable, Iterator
+    implements RepositoryFilterInterface
 {
     /**
-     * @var boolean
+     * @var RepositoryFilterInterface
      */
-    private $hydrate = true;
+    private $repositoryFilter;
     
     /**
-     * @var null|array
-     */
-    private $collection;
-    
-    /**
-     * @var integer
-     */
-    private $index = 0;
-    
-    /**
-     * @var FilterManager
-     */
-    private $filterManager;
-    
-    /**
-     * Adds a call to configure()
-     * 
-     * @inheritdoc
-     */
-    public function __construct($em, ClassMetadata $class)
-    {
-        parent::__construct($em, $class);
-        $this->configure();
-    }
-    
-    /**
-     * Make sure everything is properly cloned
+     * On clone:
+     * - also clone the repositoryFilter
      * 
      * @return void
      */
     public function __clone()
     {
-        if (null !== $this->filterManager) {
-            $this->filterManager = clone $this->filterManager;
+        parent::__clone();
+        if (null !== $this->repositoryFilter) {
+            $this->repositoryFilter = clone $this->repositoryFilter;
         }
     }
     
     /**
-     * Override to implement configuration
+     * Set repository filter
      * 
+     * @param RepositoryFilterInterface $repositoryFilter
      * @return void
      */
-    protected function configure()
+    public function setRepositoryFilter(RepositoryFilterInterface $repositoryFilter)
     {
-        
+        $this->repositoryFilter = $repositoryFilter;
     }
     
     /**
-     * Enable hydration (default)
+     * Get repository filter
      * 
-     * @return void
+     * @return RepositoryFilterInterface
      */
-    public function enableHydration()
+    public function getRepositoryFilter()
     {
-        $this->hydrate = true;
-    }
-    
-    /**
-     * Disable hydration
-     * 
-     * @return void
-     */
-    public function disableHydration()
-    {
-        $this->hydrate = false;
-    }
-    
-    /**
-     * Test wether hydration is enabled
-     * 
-     * @return boolean
-     */
-    public function isHydrationDisabled()
-    {
-        return false === $this->hydrate;
-    }
-
-
-    /**
-     * Load data if not already and return it. Important to call by reference
-     * to avoid array copies
-     * 
-     * @return array
-     */
-    private function &getCollection()
-    {
-        if (null === $this->collection) {
-            $qb = $this->createAndFilterQueryBuilder($this->getEntityAlias());
-            if ($this->isHydrationDisabled()) {
-                $this->collection = $qb->getQuery()->getScalarResult();
-            } else {
-                $this->collection = $qb->getQuery()->getResult();
-            }
+        if (null === $this->repositoryFilter) {
+            $this->setRepositoryFilter(new RepositoryFilter($this));
         }
-        return $this->collection;
+        return $this->repositoryFilter;
     }
     
-    /**
-     * Set the filter chain
-     * 
-     * @param FilterManager $filterManager
-     */
-    public function setFilterManager(FilterAggregateInterface $filterManager)
-    {
-        $this->filterManager = $filterManager;
-    }
-    
-    /**
-     * Get the filter chain
-     * 
-     * @return FilterManager
-     */
-    public function getFilterManager()
-    {
-        if (null === $this->filterManager) {
-            $this->setFilterManager(new FilterManager());
-        }
-        return $this->filterManager;
-    }
-    
-    /**
-     * @inheritdoc
-     */
     public function count()
     {
-        if (null === $this->collection) {
-            // This obviously needs to be fixed
-            return count($this->getCollection());
-        }
-        return count($this->collection);
+        return $this->getRepositoryFilter()->count();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function current()
     {
-        if (null === $this->collection) {
-            $qb = $this->createAndFilterQueryBuilder($this->getEntityAlias());
-            $qb->setMaxResults(1);
-            return $qb->getQuery()->getSingleResult();
-        }
-        return $this->collection[$this->index];
+        return $this->getRepositoryFilter()->current();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function key()
     {
-        return $this->index;
+        return $this->getRepositoryFilter()->key();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function next()
     {
-        $this->index++;
+        return $this->getRepositoryFilter()->next();
     }
 
-    /**
-     * Loop detected: load data
-     * 
-     * @inheritdoc
-     */
     public function rewind()
     {
-        $this->getCollection();
-        $this->index = 0;
+        return $this->getRepositoryFilter()->rewind();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function valid()
     {
-        $collection = &$this->getCollection();
-        return isset($collection[$this->index]);
+        return $this->getRepositoryFilter()->valid();
     }
-    
-    /**
-     * @inheritdoc
-     */
-    public function filter(EntityFilterInterface $filter)
-    {
-        $this->collection = null;
-        $this->getFilterManager()->addFilter($filter);
-    }
-    
-    /**
-     * Filter passed $qb
-     * 
-     * @param QueryBuilder $qb
-     * @return QueryBuilder
-     */
-    public function filterQueryBuilder(QueryBuilder $qb)
-    {
-        $this->getFilterManager()->filter($qb);
-        return $qb;
-    }
-    
-    /**
-     * Create a new QueryBuilder and filter it using attached filters
-     * 
-     * @param string $alias
-     * @return QueryBuilder
-     */
-    public function createAndFilterQueryBuilder($alias)
-    {
-        return $this->filterQueryBuilder($this->createQueryBuilder($alias));
-    }
-    
-    /**
-     * Returns all uppercase letters of the entity name without the
-     * namespace lowercased
-     * 
-     * @return string
-     */
-    protected function getEntityAlias()
-    {
-        $entityName = $this->getEntityName();
-        if (false !== strpos($entityName, '\\')) {
-            $entityName = substr(
-                $entityName,
-                strrpos($this->getEntityName(), '\\') + 1
-            );
-        }
 
-        $matches = array();
-        preg_match_all(
-            '/[A-Z]/',
-            $entityName,
-            $matches
-        );
-        return strtolower(implode('', $matches[0]));
+    /**
+     * {@inheritdoc}
+     */
+    public function filter($filter, $options = array())
+    {
+        return $this->getRepositoryFilter()->filter($filter, $options);
     }
 }
