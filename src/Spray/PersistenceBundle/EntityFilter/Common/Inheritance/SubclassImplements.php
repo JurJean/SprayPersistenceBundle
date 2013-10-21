@@ -64,9 +64,9 @@ class SubclassImplements implements EntityFilterInterface
     /**
      * @inheritdoc
      */
-    public function filter(QueryBuilder $qb)
+    public function filter(QueryBuilder $queryBuilder, $options = array())
     {
-        $implementingSubClasses = $this->findImplementingSubClasses($qb);
+        $implementingSubClasses = $this->findImplementingSubClasses($queryBuilder);
         if (empty($implementingSubClasses)) {
 //            $qb->andWhere(sprintf(
 //                '%s.%s IN (null)',
@@ -76,8 +76,8 @@ class SubclassImplements implements EntityFilterInterface
             return;
         }
         
-        $qb->andWhere(call_user_func_array(
-            array($qb->expr(), 'orX'),
+        $queryBuilder->andWhere(call_user_func_array(
+            array($queryBuilder->expr(), 'orX'),
             $implementingSubClasses
         ));
     }

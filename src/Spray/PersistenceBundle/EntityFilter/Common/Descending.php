@@ -29,10 +29,10 @@ class Descending implements EntityFilterInterface, ConflictingFilterInterface
     /**
      * @inheritdoc
      */
-    public function filter(QueryBuilder $qb)
+    public function filter(QueryBuilder $queryBuilder, $options = array())
     {
-        $qb->orderBy(
-            sprintf('%s.%s', $qb->getRootAlias(), $this->propertyName),
+        $queryBuilder->orderBy(
+            sprintf('%s.%s', $queryBuilder->getRootAlias(), $this->propertyName),
             'DESC'
         );
     }
