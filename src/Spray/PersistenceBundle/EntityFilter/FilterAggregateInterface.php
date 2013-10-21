@@ -7,14 +7,14 @@ namespace Spray\PersistenceBundle\EntityFilter;
  *
  * @author MHWK
  */
-interface FilterAggregateInterface extends EntityFilterInterface
+interface FilterAggregateInterface
 {
     /**
      * Add a filter
      * 
      * @param \Spray\PersistenceBundle\EntityFilter\EntityFilterInterface $filter
      */
-    public function addFilter(EntityFilterInterface $filter);
+    public function addFilter($filter, $options = array());
     
     /**
      * Test if a filter is set by either the filter name or a filter instance
