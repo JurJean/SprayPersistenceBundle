@@ -32,11 +32,24 @@ class FilterChainTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($chain->hasFilter($this->filter));
     }
     
+    public function testDoesNotHaveFilterByName()
+    {
+        $chain = $this->createFilterChain();
+        $this->assertFalse($chain->hasFilter('test'));
+    }
+    
     public function testAddFilterHasFilter()
     {
         $chain = $this->createFilterChain();
         $chain->addFilter($this->filter);
         $this->assertTrue($chain->hasFilter($this->filter));
+    }
+    
+    public function testAddFilterHasFilterByName()
+    {
+        $chain = $this->createFilterChain();
+        $chain->addFilter($this->filter);
+        $this->assertTrue($chain->hasFilter('test'));
     }
     
     public function testRemoveFilterHasNoFilter()
@@ -45,6 +58,14 @@ class FilterChainTest extends PHPUnit_Framework_TestCase
         $chain->addFilter($this->filter);
         $chain->removeFilter($this->filter);
         $this->assertFalse($chain->hasFilter($this->filter));
+    }
+    
+    public function testRemoveFilterHasNoFilterByName()
+    {
+        $chain = $this->createFilterChain();
+        $chain->addFilter($this->filter);
+        $chain->removeFilter($this->filter);
+        $this->assertFalse($chain->hasFilter('test'));
     }
     
     public function testFilterUsingOptions()
