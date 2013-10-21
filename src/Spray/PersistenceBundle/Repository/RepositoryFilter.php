@@ -162,8 +162,7 @@ class RepositoryFilter implements RepositoryFilterInterface
     public function count()
     {
         if (null === $this->collection) {
-            // This obviously needs to be fixed
-            return count($this->getCollection());
+            return $this->paginate()->count();
         }
         return count($this->collection);
     }
