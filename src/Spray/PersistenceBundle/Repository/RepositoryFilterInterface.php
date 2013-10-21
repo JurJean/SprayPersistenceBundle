@@ -3,6 +3,7 @@
 namespace Spray\PersistenceBundle\Repository;
 
 use Countable;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Iterator;
 use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
 
@@ -20,4 +21,13 @@ interface RepositoryFilterInterface extends Countable, Iterator
      * @return void
      */
     public function filter($filter, $options = array());
+    
+    /**
+     * Paginate results in current filter scope
+     * 
+     * @param integer $page
+     * @param integer $itemsPerPage
+     * @return Paginator
+     */
+    public function paginate($page = 1, $itemsPerPage = 20);
 }
