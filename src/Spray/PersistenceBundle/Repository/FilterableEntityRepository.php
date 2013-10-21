@@ -57,32 +57,50 @@ class FilterableEntityRepository extends DoctrineEntityRepository
         }
         return $this->repositoryFilter;
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
     public function count()
     {
         return $this->getRepositoryFilter()->count();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function current()
     {
         return $this->getRepositoryFilter()->current();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function key()
     {
         return $this->getRepositoryFilter()->key();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function next()
     {
         return $this->getRepositoryFilter()->next();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function rewind()
     {
         return $this->getRepositoryFilter()->rewind();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function valid()
     {
         return $this->getRepositoryFilter()->valid();
@@ -94,5 +112,13 @@ class FilterableEntityRepository extends DoctrineEntityRepository
     public function filter($filter, $options = array())
     {
         return $this->getRepositoryFilter()->filter($filter, $options);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function paginate($page = 1, $itemsPerPage = 20)
+    {
+        return $this->getRepositoryFilter()->paginate($page, $itemsPerPage);
     }
 }
