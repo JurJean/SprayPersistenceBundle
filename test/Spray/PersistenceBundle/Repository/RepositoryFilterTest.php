@@ -71,8 +71,8 @@ class RepositoryFilterTest extends TestCase
         $this->filterManager->expects($this->once())
             ->method('addFilter')
             ->with($this->equalTo($this->filter));
-        $repository = $this->createRepositoryFilter();
-        $repository->filter($this->filter);
+        $repositoryFilter = $this->createRepositoryFilter();
+        $repositoryFilter->filter($this->filter);
     }
     
     public function testFilterQueryBuilder()
@@ -80,18 +80,18 @@ class RepositoryFilterTest extends TestCase
         $this->filterManager->expects($this->once())
             ->method('filter')
             ->with($this->equalTo($this->queryBuilder));
-        $repository = $this->createRepositoryFilter();
-        $repository->filterQueryBuilder($this->queryBuilder);
+        $repositoryFilter = $this->createRepositoryFilter();
+        $repositoryFilter->filterQueryBuilder($this->queryBuilder);
     }
     
     public function testCloneAlsoClonesTheFilterManager()
     {
-        $repository1 = $this->createRepositoryFilter();
-        $repository2 = clone $repository1;
+        $repositoryFilter1 = $this->createRepositoryFilter();
+        $repositoryFilter2 = clone $repositoryFilter1;
         
         $this->assertNotSame(
-            $repository1->getFilterManager(),
-            $repository2->getFilterManager()
+            $repositoryFilter1->getFilterManager(),
+            $repositoryFilter2->getFilterManager()
         );
     }
     
@@ -116,8 +116,8 @@ class RepositoryFilterTest extends TestCase
         $this->query->expects($this->once())
             ->method('getSingleResult')
             ->will($this->returnValue('Foo'));
-        $repository = $this->createRepositoryFilter();
-        $this->assertEquals('Foo', $repository->current());
+        $repositoryFilter = $this->createRepositoryFilter();
+        $this->assertEquals('Foo', $repositoryFilter->current());
     }
     
     public function testDisableHydration()
@@ -132,24 +132,24 @@ class RepositoryFilterTest extends TestCase
         $this->query->expects($this->once())
             ->method('getScalarResult');
         
-        $repository = $this->createRepositoryFilter();
-        $repository->disableHydration();
-        $repository->valid();
+        $repositoryFilter = $this->createRepositoryFilter();
+        $repositoryFilter->disableHydration();
+        $repositoryFilter->valid();
     }
     
     public function testPaginateReturnsPaginator()
     {
-        $repository = $this->createRepositoryFilter();
+        $repositoryFilter = $this->createRepositoryFilter();
         $this->assertInstanceOf(
             'Doctrine\ORM\Tools\Pagination\Paginator',
-            $repository->paginate()
+            $repositoryFilter->paginate()
         );
     }
     
     public function testPaginateHasQueryBuilderInjected()
     {
-        $repository = $this->createRepositoryFilter();
-        $paginator  = $repository->paginate();
+        $repositoryFilter = $this->createRepositoryFilter();
+        $paginator  = $repositoryFilter->paginate();
         $this->assertSame($this->query, $paginator->getQuery());
     }
     
@@ -179,8 +179,8 @@ class RepositoryFilterTest extends TestCase
         $this->queryBuilder->expects($this->once())
             ->method('setMaxResults')
             ->with($this->equalTo($maxResults));
-        $repository = $this->createRepositoryFilter();
-        $repository->paginate(1, $maxResults);
+        $repositoryFilter = $this->createRepositoryFilter();
+        $repositoryFilter->paginate(1, $maxResults);
     }
     
     public function pageProvider()
@@ -209,7 +209,27 @@ class RepositoryFilterTest extends TestCase
         $this->queryBuilder->expects($this->once())
             ->method('setFirstResult')
             ->with($this->equalTo($firstResult));
-        $repository = $this->createRepositoryFilter();
-        $repository->paginate($page, 10);
+        $repositoryFilter = $this->createRepositoryFilter();
+        $repositoryFilter->paginate($page, 10);
+    }
+    
+    public function testCountThroughPaginator()
+    {
+        $paginator = $this->getMockBuilder('Doctrine\ORM\Tools\Pagination\Paginator')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $repositoryFilter = $this->getMockBuilder('Spray\PersistenceBundle\Repository\RepositoryFilter')
+            ->setMethods(array('paginate'))
+            ->setConstructorArgs(array($this->repository))
+            ->getMock();
+        
+        $repositoryFilter->expects($this->once())
+            ->method('paginate')
+            ->will($this->returnValue($paginator));
+        $paginator->expects($this->once())
+            ->method('count')
+            ->will($this->returnValue(55));
+        
+        $this->assertEquals(55, $repositoryFilter->count());
     }
 }
