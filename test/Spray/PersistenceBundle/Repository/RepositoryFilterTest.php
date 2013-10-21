@@ -30,6 +30,9 @@ class RepositoryFilterTest extends TestCase
             ->getMock();
         $this->filter        = $this->getMock('Spray\PersistenceBundle\EntityFilter\EntityFilterInterface');
         
+        $this->filter->expects($this->any())
+            ->method('getName')
+            ->will($this->returnValue('test'));
     }
     
     protected function getClassMethods($className)
