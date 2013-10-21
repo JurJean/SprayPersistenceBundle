@@ -7,7 +7,7 @@ namespace Spray\PersistenceBundle\EntityFilter;
  *
  * @author MHWK
  */
-interface PrioritizedFilterInterface extends EntityFilterInterface
+interface PrioritizedFilterInterface
 {
     public function getPriority();
 }

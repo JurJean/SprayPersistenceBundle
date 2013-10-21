@@ -2,6 +2,7 @@
 
 namespace Spray\PersistenceBundle\EntityFilter;
 
+use Doctrine\ORM\QueryBuilder;
 use PHPUnit_Framework_TestCase as TestCase;
 use Spray\PersistenceBundle\EntityFilter\FilterManager;
 
@@ -135,9 +136,9 @@ class FilterManagerTestFilterStub implements EntityFilterInterface
         $this->index = $index;
     }
     
-    public function filter(\Doctrine\ORM\QueryBuilder $qb)
+    public function filter(QueryBuilder $queryBuilder, $options = array())
     {
-        $qb->where($this->index);
+        $queryBuilder->where($this->index);
     }
 
     public function getName()

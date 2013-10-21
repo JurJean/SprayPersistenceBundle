@@ -89,8 +89,8 @@ class FilterChain implements FilterChainInterface
      */
     public function filter(QueryBuilder $queryBuilder, $options = array())
     {
-        foreach ($this as $filterName => $filter) {
-            $filter->filter($queryBuilder, $this->options[$filterName]);
+        foreach ($this as $filter) {
+            $filter->filter($queryBuilder, $this->options[$filter->getName()]);
         }
     }
 }
