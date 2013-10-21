@@ -4,6 +4,7 @@ namespace Spray\PersistenceBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Spray\PersistenceBundle\EntityFilter\FilterAggregateInterface;
 use Spray\PersistenceBundle\EntityFilter\FilterManager;
 
@@ -246,6 +247,21 @@ class RepositoryFilter implements RepositoryFilterInterface
     public function createAndFilterQueryBuilder($alias)
     {
         return $this->filterQueryBuilder($this->getRepository()->createQueryBuilder($alias));
+    }
+    
+    /**
+     * Paginate results in current filter scope
+     * 
+     * @param integer $page
+     * @param integer $itemsPerPage
+     * @return Paginator
+     */
+    public function paginate($page = 1, $itemsPerPage = 20)
+    {
+        $query = $this->createAndFilterQueryBuilder($this->getEntityAlias());
+        $query->setFirstResult(($page - 1) * $itemsPerPage);
+        $query->setMaxResults($itemsPerPage);
+        return new Paginator($query);
     }
     
     /**
