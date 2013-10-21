@@ -54,7 +54,7 @@ class FilterManager extends FilterChain
     /**
      * {@inheritdoc}
      */
-    public function addFilter(EntityFilterInterface $filter)
+    public function addFilter($filter, $options = array())
     {
         if ($filter instanceof ConflictingFilterInterface) {
             if ($this->hasConflictingFilters($filter)) {

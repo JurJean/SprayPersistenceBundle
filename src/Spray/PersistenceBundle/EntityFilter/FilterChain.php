@@ -4,19 +4,22 @@ namespace Spray\PersistenceBundle\EntityFilter;
 
 use ArrayIterator;
 use Doctrine\ORM\QueryBuilder;
-use InvalidArgumentException;
-use IteratorAggregate;
 use UnexpectedValueException;
 
 /**
  * FilterChain
  */
-class FilterChain implements FilterAggregateInterface, IteratorAggregate
+class FilterChain implements FilterChainInterface
 {
     /**
      * @var array
      */
-    private $index = array();
+    private $filters = array();
+    
+    /**
+     * @var array
+     */
+    private $options = array();
     
     /**
      * @inheritdoc
@@ -31,15 +34,16 @@ class FilterChain implements FilterAggregateInterface, IteratorAggregate
      */
     public function getIterator()
     {
-        return new ArrayIterator($this->index);
+        return new ArrayIterator($this->filters);
     }
     
     /**
      * @inheritdoc
      */
-    public function addFilter(EntityFilterInterface $filter)
+    public function addFilter($filter, $options = array())
     {
-        $this->index[$filter->getName()] = $filter;
+        $this->filters[$filter->getName()] = $filter;
+        $this->options[$filter->getName()] = $options;
     }
     
     /**
@@ -52,10 +56,10 @@ class FilterChain implements FilterAggregateInterface, IteratorAggregate
         }
         if ( ! is_string($filter)) {
             throw new InvalidArgumentException(
-                '$filter must be either an instance of EntityFilterInterface or the name of the filter as a string'
+                '$filter must be an instance of EntityFilterInterface or the filter name'
             );
         }
-        return isset($this->index[$filter]);
+        return isset($this->filters[$filter]);
     }
     
     /**
@@ -68,7 +72,7 @@ class FilterChain implements FilterAggregateInterface, IteratorAggregate
         }
         if ( ! is_string($filter)) {
             throw new InvalidArgumentException(
-                '$filter must be either an instance of EntityFilterInterface or the name of the filter as a string'
+                '$filter must be an instance of EntityFilterInterface or the filter name'
             );
         }
         if ( ! $this->hasFilter($filter)) {
@@ -76,16 +80,17 @@ class FilterChain implements FilterAggregateInterface, IteratorAggregate
                 'Cannot remove filter that was never added'
             );
         }
-        unset($this->index[$filter]);
+        unset($this->filters[$filter]);
+        unset($this->options[$filter]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function filter(QueryBuilder $qb)
+    public function filter(QueryBuilder $queryBuilder, $options = array())
     {
         foreach ($this as $filter) {
-            $filter->filter($qb);
+            $filter->filter($queryBuilder, $this->options[$filter->getName()]);
         }
     }
 }

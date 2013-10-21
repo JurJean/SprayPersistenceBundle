@@ -14,9 +14,9 @@ interface EntityFilterInterface
     /**
      * Filter the QueryBuilder: Perform your actions here
      * 
-     * @param \Doctrine\ORM\QueryBuilder $qb
+     * @param \Doctrine\ORM\QueryBuilder $queryBuilder
      */
-    public function filter(QueryBuilder $qb);
+    public function filter(QueryBuilder $queryBuilder, $options = array());
     
     /**
      * Get the name of the filter

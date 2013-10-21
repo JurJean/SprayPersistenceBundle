@@ -22,16 +22,17 @@ abstract class AbstractDateTimeFilter implements EntityFilterInterface
         $this->reference = $reference;
     }
     
-    public function filter(QueryBuilder $qb)
+    public function filter(QueryBuilder $queryBuilder, $options = array())
     {
-        $qb->andWhere(sprintf(
+        $aliases = $queryBuilder->getRootAliases();
+        $queryBuilder->andWhere(sprintf(
             '%s.%s %s :%s',
-            $qb->getRootAliases()[0],
+            $aliases[0],
             $this->propertyName,
             $this->comparison,
             $this->getName()
         ));
-        $qb->setParameter(
+        $queryBuilder->setParameter(
             $this->getName(),
             $this->reference->format('Y-m-d H:i:s')
         );
