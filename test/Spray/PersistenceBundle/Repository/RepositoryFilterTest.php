@@ -12,17 +12,22 @@ use ReflectionMethod;
  *
  * @author MHWK
  */
-class FilterableEntityRepositoryTest extends TestCase
+class RepositoryFilterTest extends TestCase
 {
     private $filterManager;
     
     public function setUp()
     {
         $this->classMetadata = new ClassMetadata('FooClass');
+        $this->repository    = $this->getMockBuilder('Doctrine\ORM\EntityRepository')
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->entityManager = $this->getMock('Doctrine\ORM\EntityManager', array(), array(), '', false);
         $this->queryBuilder  = $this->getMock('Doctrine\ORM\QueryBuilder', array(), array($this->entityManager));
         $this->query         = $this->getMockForAbstractClass('Doctrine\ORM\AbstractQuery', array(), '', false, true, true, $this->getClassMethods('Doctrine\ORM\AbstractQuery'));
-        $this->filterManager = $this->getMock('Spray\PersistenceBundle\EntityFilter\FilterAggregateInterface');
+        $this->filterManager = $this->getMockBuilder('Spray\PersistenceBundle\EntityFilter\FilterManager')
+            ->disableOriginalConstructor()
+            ->getMock();
         $this->filter        = $this->getMock('Spray\PersistenceBundle\EntityFilter\EntityFilterInterface');
         
     }
@@ -38,11 +43,11 @@ class FilterableEntityRepositoryTest extends TestCase
         return $result;
     }
     
-    public function createRepository()
+    public function createRepositoryFilter()
     {
-        $repository = new FilterableEntityRepository($this->entityManager, $this->classMetadata);
-        $repository->setFilterManager($this->filterManager);
-        return $repository;
+        $repositoryFilter = new RepositoryFilter($this->repository);
+        $repositoryFilter->setFilterManager($this->filterManager);
+        return $repositoryFilter;
     }
     
     public function testAddFilter()
@@ -50,7 +55,7 @@ class FilterableEntityRepositoryTest extends TestCase
         $this->filterManager->expects($this->once())
             ->method('addFilter')
             ->with($this->equalTo($this->filter));
-        $repository = $this->createRepository();
+        $repository = $this->createRepositoryFilter();
         $repository->filter($this->filter);
     }
     
@@ -59,13 +64,13 @@ class FilterableEntityRepositoryTest extends TestCase
         $this->filterManager->expects($this->once())
             ->method('filter')
             ->with($this->equalTo($this->queryBuilder));
-        $repository = $this->createRepository();
+        $repository = $this->createRepositoryFilter();
         $repository->filterQueryBuilder($this->queryBuilder);
     }
     
     public function testCloneAlsoClonesTheFilterManager()
     {
-        $repository1 = $this->createRepository();
+        $repository1 = $this->createRepositoryFilter();
         $repository2 = clone $repository1;
         
         $this->assertNotSame(
@@ -76,7 +81,7 @@ class FilterableEntityRepositoryTest extends TestCase
     
     public function testCurrentWithoutLoop()
     {
-        $this->entityManager->expects($this->any())
+        $this->repository->expects($this->any())
             ->method('createQueryBuilder')
             ->will($this->returnValue($this->queryBuilder));
         $this->queryBuilder->expects($this->any())
@@ -98,13 +103,13 @@ class FilterableEntityRepositoryTest extends TestCase
         $this->query->expects($this->once())
             ->method('getSingleResult')
             ->will($this->returnValue('Foo'));
-        $repository = $this->createRepository();
+        $repository = $this->createRepositoryFilter();
         $this->assertEquals('Foo', $repository->current());
     }
     
     public function testDisableHydration()
     {
-        $this->entityManager->expects($this->any())
+        $this->repository->expects($this->any())
             ->method('createQueryBuilder')
             ->will($this->returnValue($this->queryBuilder));
         $this->queryBuilder->expects($this->any())
@@ -120,7 +125,7 @@ class FilterableEntityRepositoryTest extends TestCase
         $this->query->expects($this->once())
             ->method('getScalarResult');
         
-        $repository = $this->createRepository();
+        $repository = $this->createRepositoryFilter();
         $repository->disableHydration();
         $repository->valid();
     }
