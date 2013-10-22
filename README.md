@@ -4,6 +4,9 @@ Spray\PersistenceBundle
 A Symfony2 bundle that enhances Doctrine2 repository functionality.
 
 [![Build Status](https://secure.travis-ci.org/JurJean/SprayPersistenceBundle.png?branch=master)](http://travis-ci.org/JurJean/SprayPersistenceBundle)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/JurJean/SprayPersistenceBundle/badges/quality-score.png?s=f3038d9bc0af391724f4ae27f3132dcae6520302)](https://scrutinizer-ci.com/g/JurJean/SprayPersistenceBundle/)
+[![Code Coverage](https://scrutinizer-ci.com/g/JurJean/SprayPersistenceBundle/badges/coverage.png?s=d74fc08c3020974dafd5708d25ae6b87f731d13b)](https://scrutinizer-ci.com/g/JurJean/SprayPersistenceBundle/)
+
 
 The problem
 -----------
