@@ -222,7 +222,7 @@ class RepositoryFilter implements RepositoryFilterInterface
     public function filter($filter, $options = array())
     {
         $this->collection = null;
-        $this->getFilterManager()->addFilter($filter);
+        $this->getFilterManager()->addFilter($filter, $options);
     }
     
     /**

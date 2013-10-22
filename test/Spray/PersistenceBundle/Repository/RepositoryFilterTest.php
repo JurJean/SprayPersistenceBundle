@@ -75,6 +75,17 @@ class RepositoryFilterTest extends TestCase
         $repositoryFilter->filter($this->filter);
     }
     
+    public function testAddFilterWithOptions()
+    {
+        $this->filterManager->expects($this->once())
+            ->method('addFilter')
+            ->with(
+                $this->equalTo($this->filter),
+                $this->equalTo(array('foo' => 'bar')));
+        $repositoryFilter = $this->createRepositoryFilter();
+        $repositoryFilter->filter($this->filter, array('foo' => 'bar'));
+    }
+    
     public function testFilterQueryBuilder()
     {
         $this->filterManager->expects($this->once())
