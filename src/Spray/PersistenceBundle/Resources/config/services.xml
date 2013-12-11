@@ -12,6 +12,7 @@
         <service id="spray_persistence.repository_filter"
                  class="Spray\PersistenceBundle\Repository\RepositoryFilter"
                  abstract="true"
+                 scope="prototype"
                  factory-service="spray_persistence.repository_filter_factory"
                  factory-method="build" />
     </services>
