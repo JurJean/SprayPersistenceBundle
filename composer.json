@@ -8,6 +8,7 @@
         "symfony/http-kernel": "2.*"
     },
     "require-dev": {
+        "phpunit/phpunit": "3.7.*",
         "doctrine/data-fixtures": "dev-master",
         "doctrine/doctrine-fixtures-bundle": "dev-master"
     },

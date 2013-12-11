@@ -1,7 +1,0 @@
-parameters:
-#    spray_persistence.example.class: Spray\PersistenceBundle\Example
-
-services:
-#    spray_persistence.example:
-#        class: %spray_persistence.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]
