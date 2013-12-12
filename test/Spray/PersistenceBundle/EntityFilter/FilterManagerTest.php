@@ -123,6 +123,22 @@ class FilterManagerTest extends TestCase
         $filterManager->addFilter($this->conflictingFilter1);
         $this->assertFalse($filterManager->hasFilter('filter1'));
     }
+    
+    public function testFilterUsingOptions()
+    {
+        $filterManager = new FilterManager();
+        $filterManager->addFilter(
+            $this->conflictingFilter1,
+            array('foo' => 'bar')
+        );
+        $this->conflictingFilter1
+            ->expects($this->once())
+            ->method('filter')
+            ->with(
+                $this->equalTo($this->queryBuilder),
+                $this->equalTo(array('foo' => 'bar')));
+        $filterManager->filter($this->queryBuilder);
+    }
 }
 
 class FilterManagerTestFilterStub implements EntityFilterInterface

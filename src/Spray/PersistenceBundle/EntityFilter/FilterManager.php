@@ -68,7 +68,7 @@ class FilterManager extends FilterChain
         }
         $this->queue = null;
         $this->priorities[$filter->getName()] = $priority;
-        return parent::addFilter($filter);
+        return parent::addFilter($filter, $options);
     }
     
     /**
