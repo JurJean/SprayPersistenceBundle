@@ -120,7 +120,7 @@ class RepositoryFilter implements RepositoryFilterInterface
      * 
      * @return array
      */
-    private function &getCollection()
+    public function &getCollection()
     {
         if (null === $this->collection) {
             $qb = $this->createAndFilterQueryBuilder($this->getEntityAlias());
