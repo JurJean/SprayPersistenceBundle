@@ -15,5 +15,10 @@
                  scope="prototype"
                  factory-service="spray_persistence.repository_filter_factory"
                  factory-method="build" />
+        
+        <service id="spray_persistence.serializer.repository_filter_handler"
+                 class="Spray\PersistenceBundle\Serializer\RepositoryFilterHandler">
+            <tag name="jms_serializer.subscribing_handler" />
+        </service>
     </services>
 </container>
