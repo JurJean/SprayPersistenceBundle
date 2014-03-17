@@ -54,6 +54,9 @@ class RepositoryFilterHandlerTest extends PHPUnit_Framework_TestCase
                 ->method('current')
                 ->will($this->returnValue($value));
             $iterator->expects($this->at($call++))
+                ->method('key')
+                ->will($this->returnValue($key));
+            $iterator->expects($this->at($call++))
                 ->method('next');
         }
         
@@ -69,7 +72,7 @@ class RepositoryFilterHandlerTest extends PHPUnit_Framework_TestCase
         $this->visitor->expects($this->once())
             ->method('visitArray')
             ->with(
-                $this->equalTo(array(''=>$entity)),
+                $this->equalTo(array(0=>$entity)),
                 array('json'),
                 $this->context
             );
