@@ -48,7 +48,7 @@ class SubclassImplementsTest extends TestCase
     
     protected function createFilter()
     {
-        return new SubclassImplements('Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestInterface');
+        return new SubclassImplements();
     }
     
     public function testIsFilter()
@@ -64,11 +64,17 @@ class SubclassImplementsTest extends TestCase
         $this->assertEquals('subclass_implements', $this->createFilter()->getName());
     }
     
+    public function testFailInterfaceDoesNotExist()
+    {
+        $this->setExpectedException('Spray\PersistenceBundle\EntityFilter\Exception\InvalidArgumentException');
+        $this->createFilter()->filter($this->queryBuilder, 'IDoNotExist');
+    }
+    
     public function testFailDiscriminatorMapIsEmpty()
     {
         $this->setExpectedException('UnexpectedValueException');
         $this->classMetadata->discriminatorMap = array();
-        $this->createFilter()->filter($this->queryBuilder);
+        $this->createFilter()->filter($this->queryBuilder, 'Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestInterface');
     }
     
     public function testFilterByInterface()
@@ -84,7 +90,7 @@ class SubclassImplementsTest extends TestCase
         $this->queryBuilder->expects($this->once())
             ->method('andWhere')
             ->with($this->equalTo('instanceof'));
-        $this->createFilter()->filter($this->queryBuilder);
+        $this->createFilter()->filter($this->queryBuilder, 'Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestInterface');
     }
     
     public function testFilterNoInterface()
@@ -97,7 +103,7 @@ class SubclassImplementsTest extends TestCase
         );
         $this->queryBuilder->expects($this->never())
             ->method('andWhere');
-        $this->createFilter()->filter($this->queryBuilder);
+        $this->createFilter()->filter($this->queryBuilder, 'Spray\PersistenceBundle\EntityFilter\Common\Inheritance\SubclassImplementsTestInterface');
     }
 }
 

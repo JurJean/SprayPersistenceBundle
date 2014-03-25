@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
 use ReflectionClass;
 use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
+use Spray\PersistenceBundle\EntityFilter\Exception\InvalidArgumentException;
 use UnexpectedValueException;
 
 /**
@@ -15,28 +16,13 @@ use UnexpectedValueException;
 class SubclassImplements implements EntityFilterInterface
 {
     /**
-     * @var string
-     */
-    private $interface;
-    
-    /**
-     * Construct a new SubclassImplements filter for $interface
-     * 
-     * @param string $interface
-     */
-    public function __construct($interface)
-    {
-        $this->interface = $interface;
-    }
-    
-    /**
      * Find all classes that implement $this->interface from $classMetadata
      * 
      * @param ClassMetadata $classMetadata
      * @return string
      * @throws UnexpectedValueException
      */
-    public function findImplementingSubClasses(QueryBuilder $qb)
+    public function findImplementingSubClasses(QueryBuilder $qb, $interface)
     {
         $em = $qb->getEntityManager();
         $rootEntities = $qb->getRootEntities();
@@ -50,7 +36,7 @@ class SubclassImplements implements EntityFilterInterface
         $result = array();
         foreach ($classMetadata->discriminatorMap as $key => $className) {
             $reflection = new ReflectionClass($className);
-            if ($reflection->implementsInterface($this->interface)) {
+            if ($reflection->implementsInterface($interface)) {
                 $result[] = sprintf(
                    '%s INSTANCE OF %s',
                     $qb->getRootAlias(),
@@ -66,13 +52,17 @@ class SubclassImplements implements EntityFilterInterface
      */
     public function filter(QueryBuilder $queryBuilder, $options = array())
     {
-        $implementingSubClasses = $this->findImplementingSubClasses($queryBuilder);
+        if ( ! interface_exists($options)) {
+            throw new InvalidArgumentException(sprintf(
+                '$options is expected to be an interface name, %s given',
+                is_string($options)
+                    ? $options
+                    : gettype($options)
+            ));
+        }
+        
+        $implementingSubClasses = $this->findImplementingSubClasses($queryBuilder, $options);
         if (empty($implementingSubClasses)) {
-//            $qb->andWhere(sprintf(
-//                '%s.%s IN (null)',
-//                $qb->getRootAlias(),
-//                $classMetadata->discriminatorColumn['fieldName']
-//            ));
             return;
         }
         

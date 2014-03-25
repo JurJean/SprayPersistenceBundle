@@ -33,10 +33,10 @@ class LikeTest extends TestCase
                  $this->equalTo('%bar%')
              );
 
-        $filter = new Like(array(
+        $filter = new Like();
+        $filter->filter($this->queryBuilder, array(
             'foo' => 'bar',
             'bar' => 'baz',
         ));
-        $filter->filter($this->queryBuilder);
     }
 }

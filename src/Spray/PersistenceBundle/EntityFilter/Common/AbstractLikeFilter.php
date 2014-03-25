@@ -2,7 +2,13 @@
 
 namespace Spray\PersistenceBundle\EntityFilter\Common;
 
-
-class AbstractLikeFilter {
-    protected $comparison = "%";
+class AbstractLikeFilter 
+{
+    /**
+     * @return string
+     */
+    public function getComparison()
+    {
+        return '%';
+    }
 }

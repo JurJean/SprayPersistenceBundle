@@ -9,5 +9,11 @@ namespace Spray\PersistenceBundle\EntityFilter\Common;
  */
 abstract class AbstractAfterFilter extends AbstractDateTimeFilter
 {
-    protected $comparison = ">=";
+    /**
+     * {@inheritdoc}
+     */
+    public function getComparison()
+    {
+        return '>=';
+    }
 }
