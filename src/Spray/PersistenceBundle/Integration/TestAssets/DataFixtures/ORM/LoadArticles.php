@@ -15,11 +15,11 @@ class LoadArticles extends AbstractFixture
 {
     public function load(ObjectManager $manager)
     {
-        $longAgo = new DateTime();
-        $longAgo->sub(DateInterval::createFromDateString('100 days'));
+        $tomorrow = new DateTime();
+        $tomorrow->add(DateInterval::createFromDateString('1 day'));
         $firstArticle = new Article();
         $firstArticle->setTitle('First article');
-        $firstArticle->setPublishedAt($longAgo);
+        $firstArticle->setPublishedAt($tomorrow);
         $this->setReference('article-first', $firstArticle);
         $manager->persist($firstArticle);
         
@@ -31,11 +31,11 @@ class LoadArticles extends AbstractFixture
         $this->setReference('article-second', $secondArticle);
         $manager->persist($secondArticle);
         
-        $tomorrow = new DateTime();
-        $tomorrow->add(DateInterval::createFromDateString('1 day'));
+        $longAgo = new DateTime();
+        $longAgo->sub(DateInterval::createFromDateString('100 days'));
         $thirdArticle = new Article();
         $thirdArticle->setTitle('Third article');
-        $thirdArticle->setPublishedAt($tomorrow);
+        $thirdArticle->setPublishedAt($longAgo);
         $this->setReference('article-third', $thirdArticle);
         $manager->persist($thirdArticle);
         
