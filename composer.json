@@ -8,8 +8,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
-        "doctrine/doctrine-fixtures-bundle": "2.2.*@dev",
-        "jms/serializer-bundle": "0.13.*@dev"
+        "jms/serializer-bundle": "0.13.*@dev",
+        "jurjean/spray-bundle-integration": "1.0.*@dev"
     },
     "suggest": {
         "jms/serializer-bundle": "Allows serialization of RepositoryFilter"
