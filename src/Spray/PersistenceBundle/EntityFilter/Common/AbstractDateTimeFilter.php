@@ -5,6 +5,7 @@ namespace Spray\PersistenceBundle\EntityFilter\Common;
 use DateTime;
 use Doctrine\ORM\QueryBuilder;
 use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
+use Spray\PersistenceBundle\EntityFilter\Exception\InvalidArgumentException;
 
 /**
  * AbstractDateTimeFilter
@@ -13,28 +14,45 @@ use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
  */
 abstract class AbstractDateTimeFilter implements EntityFilterInterface
 {
-    private $reference;
-    protected $propertyName;
-    protected $comparison;
-    
-    public function __construct(DateTime $reference)
-    {
-        $this->reference = $reference;
-    }
-    
+    /**
+     * Generic DateTime filter
+     * 
+     * @param QueryBuilder $queryBuilder
+     * @param DateTime $options
+     * @throws InvalidArgumentException if $options is not an instance of DateTime
+     */
     public function filter(QueryBuilder $queryBuilder, $options = array())
     {
+        if ( ! $options instanceof DateTime) {
+            throw new InvalidArgumentException(
+                '$options is expected to be an instance of DateTime'
+            );
+        }
         $aliases = $queryBuilder->getRootAliases();
         $queryBuilder->andWhere(sprintf(
             '%s.%s %s :%s',
             $aliases[0],
-            $this->propertyName,
-            $this->comparison,
+            $this->getPropertyName(),
+            $this->getComparison(),
             $this->getName()
         ));
         $queryBuilder->setParameter(
             $this->getName(),
-            $this->reference->format('Y-m-d H:i:s')
+            $options->format('Y-m-d H:i:s')
         );
     }
+    
+    /**
+     * Implement to return the property name to filter
+     * 
+     * @return string
+     */
+    abstract public function getPropertyName();
+    
+    /**
+     * Implement to return the comparison to do
+     * 
+     * @return string
+     */
+    abstract public function getComparison();
 }
