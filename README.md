@@ -49,7 +49,7 @@ FilterableEntityRepository comes in. The above logic can be rewritten as:
 
     class EntityPublished implements EntityFilterInterface
     {
-        public function filter(QueryBuilder $qb)
+        public function filter(QueryBuilder $queryBuilder, $options = array())
         {
             // Perform query
         }
@@ -57,12 +57,15 @@ FilterableEntityRepository comes in. The above logic can be rewritten as:
 
     class EntityBeforeDate extends AbstractBeforeFilter
     {
-        protected $propertyName = 'foo';
+        public function getPropertyName()
+        {
+            return 'date';
+        }
     }
 
     class EntityWithinRadius implements EntityFilterInterface
     {
-        public function filter(QueryBuilder $qb)
+        public function filter(QueryBuilder $queryBuilder, $options = array())
         {
             // Perform query
         }
@@ -70,8 +73,8 @@ FilterableEntityRepository comes in. The above logic can be rewritten as:
 
     $repository = new FilterableEntityRepository();
     $repository->filter(new EntityPublished());
-    $repository->filter(new EntityBeforeDate());
-    $repository->filter(new EntityWithinRadius());
+    $repository->filter(new EntityBeforeDate(), DateTime::createFromFormat('Y-m-d', '2014-03-26'));
+    $repository->filter(new EntityWithinRadius(), new Radius());
 
 Prioritized filters
 -------------------
@@ -84,7 +87,7 @@ PrioritizedFilterInterface:
 
     class PrioritizedFilter implements PrioritizedFilterInterface
     {
-        public function filter(QueryBuilder $qb)
+        public function filter(QueryBuilder $queryBuilder, $options = array())
         {
             // Do stuff
         }
@@ -114,7 +117,7 @@ ConflictingFilterInterface:
 
     class ConflictingFilter implements ConflictingFilterInterface
     {
-        public function filter(QueryBuilder $qb)
+        public function filter(QueryBuilder $queryBuilder, $options = array())
         {
             // Do stuff
         }
@@ -129,3 +132,9 @@ ConflictingFilterInterface:
             return array('another_filter');
         }
     }
+
+Examples
+--------
+
+For more examples please have a look at the
+[integration tests for this project](test/Spray/PersistenceBundle/Integration).
