@@ -1283,12 +1283,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/JurJean/SprayBundleIntegration.git",
-                "reference": "e5f4be06a3600a098a680da9826803296196d91d"
+                "reference": "351a9caa623ffda5ff5d10810af0da1ef1a3502d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JurJean/SprayBundleIntegration/zipball/e5f4be06a3600a098a680da9826803296196d91d",
-                "reference": "e5f4be06a3600a098a680da9826803296196d91d",
+                "url": "https://api.github.com/repos/JurJean/SprayBundleIntegration/zipball/351a9caa623ffda5ff5d10810af0da1ef1a3502d",
+                "reference": "351a9caa623ffda5ff5d10810af0da1ef1a3502d",
                 "shasum": ""
             },
             "require": {
@@ -1313,7 +1313,7 @@
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
-            "time": "2014-03-26 15:11:15"
+            "time": "2014-03-26 16:00:32"
         },
         {
             "name": "phpcollection/phpcollection",

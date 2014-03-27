@@ -8,6 +8,7 @@ use Spray\BundleIntegration\ORMIntegrationTestCase;
 use Spray\PersistenceBundle\Integration\TestAssets\SprayPersistenceIntegrationTestBundle;
 use Spray\PersistenceBundle\Repository\RepositoryFilter;
 use Spray\PersistenceBundle\Repository\RepositoryFilterInterface;
+use Spray\PersistenceBundle\SprayPersistenceBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 
 /**
@@ -24,6 +25,7 @@ abstract class AbstractFilterIntegrationTestCase extends ORMIntegrationTestCase
             new FrameworkBundle(),
             new DoctrineBundle(),
             new DoctrineFixturesBundle(),
+            new SprayPersistenceBundle(),
             new SprayPersistenceIntegrationTestBundle(),
         );
     }

@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        
+        <service id="spray_persistence.integration.articles"
+                 class="Spray\PersistenceBundle\Repository\RepositoryFilter"
+                 parent="spray_persistence.repository_filter">
+            <argument>Spray\PersistenceBundle\Integration\TestAssets\Entity\Article</argument>
+        </service>
+        <service id="spray_persistence.integration.articles.currently_published"
+                 class="Spray\PersistenceBundle\Integration\TestAssets\EntityFilter\ArticlesCurrentlyPublished">
+            <tag name="spray_persistence.entity_filter"
+                 repository="spray_persistence.integration.articles"
+                 alias="currentlyPublished" />
+        </service>
+        <service id="spray_persistence.integration.articles.published_since"
+                 class="Spray\PersistenceBundle\Integration\TestAssets\EntityFilter\ArticlesPublishedSince">
+            <argument>Spray\PersistenceBundle\Integration\TestAssets\EntityFilter\ArticlesPublishedSince</argument>
+            <tag name="spray_persistence.entity_filter"
+                 repository="spray_persistence.integration.articles"
+                 alias="publishedSince" />
+        </service>
+        
+    </services>
+</container>
