@@ -2,6 +2,7 @@
 
 namespace Spray\PersistenceBundle\FilterLocator;
 
+use InvalidArgumentException;
 use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
 use UnexpectedValueException;
 
@@ -37,6 +38,9 @@ class FilterRegistry implements FilterLocatorInterface
      */
     public function has($alias)
     {
+        if ($alias instanceof EntityFilterInterface) {
+            $alias = $alias->getName();
+        }
         return isset($this->filters[$alias]);
     }
     
@@ -55,6 +59,9 @@ class FilterRegistry implements FilterLocatorInterface
                 $alias
             ));
         }
+        if ($alias instanceof EntityFilterInterface) {
+            $alias = $alias->getName();
+        }
         return $this->filters[$alias];
     }
     
@@ -63,8 +70,11 @@ class FilterRegistry implements FilterLocatorInterface
      * - if it is a string it proxies to get($alias)
      * - if it is an instance it will be added
      * - if it is an instance and it already exists, the existing version will
-     *   be overridden
-     * @param type $filter
+     *   be returned
+     * 
+     * @param string|EntityFilterInterface $filter
+     * @return EntityFilterInterface
+     * @throws InvalidArgumentException if no string or EntityFilterInterface was given
      */
     public function locateFilter($filter)
     {
@@ -76,7 +86,9 @@ class FilterRegistry implements FilterLocatorInterface
             throw new InvalidArgumentException('Please provide an EntityFilterInterface');
         }
         
-        $this->add($filter);
-        return $filter;
+        if ( ! $this->has($filter)) {
+            $this->add($filter);
+        }
+        return $this->get($filter);
     }
 }
