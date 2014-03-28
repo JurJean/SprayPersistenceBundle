@@ -26,13 +26,11 @@
         <!-- Common filters -->
         <service id="spray_persistence.filters.common.ascending"
                  class="Spray\PersistenceBundle\EntityFilter\Common\Ascending">
-            <tag name="spray_persistence.entity_filter"
-                 alias="ascending" />
+            <tag name="spray_persistence.entity_filter" />
         </service>
         <service id="spray_persistence.filters.common.descending"
                  class="Spray\PersistenceBundle\EntityFilter\Common\Descending">
-            <tag name="spray_persistence.entity_filter"
-                 alias="descending" />
+            <tag name="spray_persistence.entity_filter" />
         </service>
     </services>
 </container>
