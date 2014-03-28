@@ -26,7 +26,14 @@ class DescendingTest extends TestCase
             ->with(
                 $this->equalTo('a.foo'),
                 $this->equalTo('DESC'));
-        $filter = new Descending('foo');
+        $filter = new Descending();
+        $filter->filter($this->queryBuilder, 'foo');
+    }
+    
+    public function testFailFilterWithInvalidArgument()
+    {
+        $this->setExpectedException('Spray\PersistenceBundle\EntityFilter\Exception\InvalidArgumentException');
+        $filter = new Descending();
         $filter->filter($this->queryBuilder);
     }
 }

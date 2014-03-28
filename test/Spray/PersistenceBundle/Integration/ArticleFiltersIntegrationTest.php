@@ -12,10 +12,7 @@ use Spray\PersistenceBundle\EntityFilter\Common\Descending;
  */
 class ArticleFiltersIntegrationTest extends AbstractFilterIntegrationTestCase
 {
-    protected function createRepositoryFilter()
-    {
-        return $this->createContainer()->get('spray_persistence.integration.articles');
-    }
+    const ALIAS = 'spray_persistence.integration.articles';
     
     public function testFilterArticlesCurrentlyPublished()
     {
@@ -36,14 +33,14 @@ class ArticleFiltersIntegrationTest extends AbstractFilterIntegrationTestCase
     public function testFilterArticlesAscendingByPublicationDate()
     {
         $articles = $this->createRepositoryFilter();
-        $articles->filter(new Ascending('publishedAt'));
+        $articles->filter('ascending', 'publishedAt');
         $this->assertEquals(3, $articles->current()->getId());
     }
     
     public function testFilterArticlesDescendingById()
     {
         $articles = $this->createRepositoryFilter();
-        $articles->filter(new Descending('id'));
+        $articles->filter('descending', 'id');
         $this->assertEquals(3, $articles->current()->getId());
     }
 }

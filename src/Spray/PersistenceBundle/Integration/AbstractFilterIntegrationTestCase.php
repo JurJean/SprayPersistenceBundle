@@ -36,10 +36,13 @@ abstract class AbstractFilterIntegrationTestCase extends ORMIntegrationTestCase
      * @param string $entityName
      * @return RepositoryFilterInterface
      */
-    protected function createRepositoryFilter($entityName)
+    protected function createRepositoryFilter()
     {
-        return new RepositoryFilter(
-            $this->createEntityManager()->getRepository($entityName)
-        );
+        if (class_exists(static::ALIAS)) {
+            return new RepositoryFilter(
+                $this->createEntityManager()->getRepository(static::ALIAS)
+            );
+        }
+        return $this->createContainer()->get(static::ALIAS);
     }
 }

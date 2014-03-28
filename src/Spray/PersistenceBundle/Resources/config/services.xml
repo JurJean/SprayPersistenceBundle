@@ -11,7 +11,8 @@
                  abstract="true"
                  scope="prototype"
                  factory-service="spray_persistence.repository_filter_factory"
-                 factory-method="build" />
+                 factory-method="build">
+        </service>
         <service id="spray_persistence.repository_filter_factory"
                  class="Spray\PersistenceBundle\Repository\RepositoryFilterFactory">
             <argument type="service" id="doctrine.orm.entity_manager" />
@@ -22,5 +23,16 @@
             <tag name="jms_serializer.subscribing_handler" />
         </service>
         
+        <!-- Common filters -->
+        <service id="spray_persistence.filters.common.ascending"
+                 class="Spray\PersistenceBundle\EntityFilter\Common\Ascending">
+            <tag name="spray_persistence.entity_filter"
+                 alias="ascending" />
+        </service>
+        <service id="spray_persistence.filters.common.descending"
+                 class="Spray\PersistenceBundle\EntityFilter\Common\Descending">
+            <tag name="spray_persistence.entity_filter"
+                 alias="descending" />
+        </service>
     </services>
 </container>

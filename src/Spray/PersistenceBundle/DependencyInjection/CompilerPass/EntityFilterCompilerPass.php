@@ -2,7 +2,6 @@
 
 namespace Spray\PersistenceBundle\DependencyInjection\CompilerPass;
 
-use RuntimeException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -15,47 +14,74 @@ class EntityFilterCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        $repositoryFilterRegistries = $this->buildFilterRegistries($container);
-        foreach ($repositoryFilterRegistries as $repositoryName => $filterRegistry) {
-            $repository = $container->getDefinition($repositoryName);
-            $repository->addMethodCall('setFilterLocator', array(
-                new Reference($filterRegistry)
-            ));
-        }
+        $this->buildFilterRegistries($container);
     }
     
     public function buildFilterRegistries(ContainerBuilder $container)
     {
-        $registries = array();
-        $filters    = $container->findTaggedServiceIds('spray_persistence.entity_filter');
-        foreach ($filters as $id => $filterOptions) {
+        $filters      = $container->findTaggedServiceIds('spray_persistence.entity_filter');
+        $repositories = array();
+        foreach ($filters as $filterId => $filterOptions) {
             foreach ($filterOptions as $options) {
                 if ( ! isset($options['repository'])) {
-                    throw new RuntimeException('Please provide repository');
+                    continue;
                 }
-                
-                $registryName = $options['repository'] . '.filter_registry';
-                if ( ! $container->hasDefinition($registryName)) {
-                    $definition = new Definition();
-                    $definition->setClass('Spray\PersistenceBundle\FilterLocator\FilterRegistry');
-                    $container->setDefinition($registryName, $definition);
-                } else {
-                    $definition = $container->getDefinition($registryName);
+                $this->attachFilterToRepository(
+                    $container,
+                    $options['repository'],
+                    $filterId,
+                    $options
+                );
+                $repositories[] = $options['repository'];
+            }
+        }
+        foreach ($filters as $filterId => $filterOptions) {
+            foreach ($filterOptions as $options) {
+                if (isset($options['repository'])) {
+                    continue;
                 }
-                $registries[$options['repository']] = $registryName;
-                
-                if (isset($options['alias'])) {
-                    $definition->addMethodCall('add', array(
-                        new Reference($id),
-                        $options['alias']
-                    ));
-                } else {
-                    $definition->addMethodCall('add', array(
-                        new Reference($id)
-                    ));
+                foreach ($repositories as $repositoryId) {
+                    $this->attachFilterToRepository(
+                        $container,
+                        $repositoryId,
+                        $filterId,
+                        $options
+                    );
                 }
             }
         }
-        return $registries;
+        
+    }
+    
+    public function attachFilterToRepository(ContainerBuilder $container, $repositoryId, $filterId, array $options)
+    {
+        $definition = $this->locateFilterRegistryForRepository($container, $repositoryId);
+        
+        if (isset($options['alias'])) {
+            $definition->addMethodCall('add', array(
+                new Reference($filterId),
+                $options['alias']
+            ));
+        } else {
+            $definition->addMethodCall('add', array(
+                new Reference($filterId)
+            ));
+        }
+    }
+    
+    public function locateFilterRegistryForRepository(ContainerBuilder $container, $repositoryId)
+    {
+        $registryId = $repositoryId . '.filter_registry';
+        if ($container->hasDefinition($registryId)) {
+            return $container->getDefinition($registryId);
+        }
+        $definition = new Definition();
+        $definition->setClass('Spray\PersistenceBundle\FilterLocator\FilterRegistry');
+        $container->setDefinition($registryId, $definition);
+        $repository = $container->getDefinition($repositoryId);
+        $repository->addMethodCall('setFilterLocator', array(
+            new Reference($registryId)
+        ));
+        return $definition;
     }
 }

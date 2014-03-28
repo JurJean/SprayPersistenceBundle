@@ -5,6 +5,7 @@ namespace Spray\PersistenceBundle\EntityFilter\Common;
 use Doctrine\ORM\QueryBuilder;
 use Spray\PersistenceBundle\EntityFilter\ConflictingFilterInterface;
 use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
+use Spray\PersistenceBundle\EntityFilter\Exception\InvalidArgumentException;
 
 /**
  * Filter entities ascending by specified $propertyName
@@ -12,27 +13,15 @@ use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
 class Descending implements EntityFilterInterface, ConflictingFilterInterface
 {
     /**
-     * @var string
-     */
-    private $propertyName;
-    
-    /**
-     * Construct a new Ascending entity filter
-     * 
-     * @param string $propertyName
-     */
-    public function __construct($propertyName)
-    {
-        $this->propertyName = $propertyName;
-    }
-    
-    /**
      * @inheritdoc
      */
     public function filter(QueryBuilder $queryBuilder, $options = array())
     {
+        if ( ! is_string($options)) {
+            throw new InvalidArgumentException('$options is expected to be a property name');
+        }
         $queryBuilder->orderBy(
-            sprintf('%s.%s', $queryBuilder->getRootAlias(), $this->propertyName),
+            sprintf('%s.%s', $queryBuilder->getRootAlias(), $options),
             'DESC'
         );
     }
