@@ -3,6 +3,7 @@
 namespace Spray\PersistenceBundle\EntityFilter;
 
 use PHPUnit_Framework_TestCase;
+use stdClass;
 
 /**
  * FilterChainTest
@@ -26,10 +27,21 @@ class FilterChainTest extends PHPUnit_Framework_TestCase
         return new FilterChain();
     }
     
+    public function getDefaultName()
+    {
+        $this->assertEquals('filter_chain', $this->createFilterChain()->getName());
+    }
+    
     public function testDoesNotHaveFilter()
     {
         $chain = $this->createFilterChain();
         $this->assertFalse($chain->hasFilter($this->filter));
+    }
+    
+    public function testFailDoesNotHaveFilterAsArgumentIsInvalid()
+    {
+        $this->setExpectedException('Spray\PersistenceBundle\EntityFilter\Exception\InvalidArgumentException');
+        $this->createFilterChain()->hasFilter(new stdClass);
     }
     
     public function testDoesNotHaveFilterByName()
@@ -58,6 +70,18 @@ class FilterChainTest extends PHPUnit_Framework_TestCase
         $chain->addFilter($this->filter);
         $chain->removeFilter($this->filter);
         $this->assertFalse($chain->hasFilter($this->filter));
+    }
+    
+    public function testFailCanNotRemoveFilterAsArgumentIsInvalid()
+    {
+        $this->setExpectedException('Spray\PersistenceBundle\EntityFilter\Exception\InvalidArgumentException');
+        $this->createFilterChain()->removeFilter(new stdClass);
+    }
+    
+    public function testFailCanNotRemoveFilterThatWasNeverAdded()
+    {
+        $this->setExpectedException('Spray\PersistenceBundle\EntityFilter\Exception\UnexpectedValueException');
+        $this->createFilterChain()->removeFilter('foo');
     }
     
     public function testRemoveFilterHasNoFilterByName()

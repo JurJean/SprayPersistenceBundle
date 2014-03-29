@@ -4,7 +4,8 @@ namespace Spray\PersistenceBundle\EntityFilter;
 
 use ArrayIterator;
 use Doctrine\ORM\QueryBuilder;
-use UnexpectedValueException;
+use Spray\PersistenceBundle\EntityFilter\Exception\InvalidArgumentException;
+use Spray\PersistenceBundle\EntityFilter\Exception\UnexpectedValueException;
 
 /**
  * FilterChain
