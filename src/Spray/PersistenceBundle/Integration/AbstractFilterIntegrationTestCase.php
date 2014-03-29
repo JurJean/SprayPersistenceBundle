@@ -31,18 +31,12 @@ abstract class AbstractFilterIntegrationTestCase extends ORMIntegrationTestCase
     }
     
     /**
-     * Create a new RepositoryFilter for $entityName
+     * Get RepositoryFilter for articles
      * 
-     * @param string $entityName
      * @return RepositoryFilterInterface
      */
-    protected function createRepositoryFilter()
+    protected function createArticlesFilter()
     {
-        if (class_exists(static::ALIAS)) {
-            return new RepositoryFilter(
-                $this->createEntityManager()->getRepository(static::ALIAS)
-            );
-        }
-        return $this->createContainer()->get(static::ALIAS);
+        return $this->createContainer()->get('spray_persistence.integration.articles');
     }
 }
