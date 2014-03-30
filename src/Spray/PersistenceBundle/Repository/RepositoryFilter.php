@@ -7,6 +7,8 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Spray\PersistenceBundle\EntityFilter\FilterAggregateInterface;
 use Spray\PersistenceBundle\EntityFilter\FilterManager;
+use Spray\PersistenceBundle\FilterLocator\FilterLocatorInterface;
+use Spray\PersistenceBundle\FilterLocator\FilterRegistry;
 
 /**
  * RepositoryFilter
@@ -39,6 +41,11 @@ class RepositoryFilter implements RepositoryFilterInterface
     private $filterManager;
     
     /**
+     * @var FilterLocatorInterface
+     */
+    private $filterLocator;
+    
+    /**
      * Construct a RepositoryFilter
      * 
      * @param EntityRepository $repository
@@ -59,9 +66,34 @@ class RepositoryFilter implements RepositoryFilterInterface
     }
     
     /**
+     * Set the filter locator
+     * 
+     * @param FilterLocatorInterface $filterLocator
+     * @return void
+     */
+    public function setFilterLocator(FilterLocatorInterface $filterLocator)
+    {
+        $this->filterLocator = $filterLocator;
+    }
+    
+    /**
+     * Get the filter locator
+     * 
+     * @return FilterLocatorInterface
+     */
+    public function getFilterLocator()
+    {
+        if (null === $this->filterLocator) {
+            $this->setFilterLocator(new FilterRegistry());
+        }
+        return $this->filterLocator;
+    }
+    
+    /**
      * On clone:
      * - clear collection
      * - clone filterManager
+     * - clone filterLocator
      * 
      * @return void
      */
@@ -70,6 +102,9 @@ class RepositoryFilter implements RepositoryFilterInterface
         $this->collection = null;
         if (null !== $this->filterManager) {
             $this->filterManager = clone $this->filterManager;
+        }
+        if (null !== $this->filterLocator) {
+            $this->filterLocator = clone $this->filterLocator;
         }
     }
     
@@ -222,7 +257,10 @@ class RepositoryFilter implements RepositoryFilterInterface
     public function filter($filter, $options = array())
     {
         $this->collection = null;
-        $this->getFilterManager()->addFilter($filter, $options);
+        $this->getFilterManager()->addFilter(
+            $this->getFilterLocator()->locateFilter($filter),
+            $options
+        );
     }
     
     /**

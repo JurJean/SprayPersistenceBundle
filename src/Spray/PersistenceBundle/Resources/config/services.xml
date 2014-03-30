@@ -5,20 +5,32 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="spray_persistence.repository_filter_factory"
-                 class="Spray\PersistenceBundle\Repository\RepositoryFilterFactory">
-            <argument type="service" id="doctrine.orm.entity_manager" />
-        </service>
+        
         <service id="spray_persistence.repository_filter"
                  class="Spray\PersistenceBundle\Repository\RepositoryFilter"
                  abstract="true"
                  scope="prototype"
                  factory-service="spray_persistence.repository_filter_factory"
-                 factory-method="build" />
+                 factory-method="build">
+        </service>
+        <service id="spray_persistence.repository_filter_factory"
+                 class="Spray\PersistenceBundle\Repository\RepositoryFilterFactory">
+            <argument type="service" id="doctrine.orm.entity_manager" />
+        </service>
         
         <service id="spray_persistence.serializer.repository_filter_handler"
                  class="Spray\PersistenceBundle\Serializer\RepositoryFilterHandler">
             <tag name="jms_serializer.subscribing_handler" />
+        </service>
+        
+        <!-- Common filters -->
+        <service id="spray_persistence.filters.common.ascending"
+                 class="Spray\PersistenceBundle\EntityFilter\Common\Ascending">
+            <tag name="spray_persistence.entity_filter" />
+        </service>
+        <service id="spray_persistence.filters.common.descending"
+                 class="Spray\PersistenceBundle\EntityFilter\Common\Descending">
+            <tag name="spray_persistence.entity_filter" />
         </service>
     </services>
 </container>
