@@ -12,22 +12,22 @@ Introduction
 
 This bundle provides a way to query your objects in an abstract manner:
 ```php
-$articles->filter('currentlyPublished');
-$articles->filter('writtenBy', new Author('Buster'));
-$articles->filter('ascending');
+    $articles->filter('currentlyPublished');
+    $articles->filter('writtenBy', new Author('Buster'));
+    $articles->filter('ascending');
 ```
 It has a common API:
 ```php
-$articleCount = count($articles);
-foreach ($articles as $article) {
+    $articleCount = count($articles);
+    foreach ($articles as $article) {
           
-}
+    }
 ```
 Allows easy pagination:
 ```php
-foreach ($articles->paginate(1) as $article) {
+    foreach ($articles->paginate(1) as $article) {
           
-}
+    }
 ```
 And can be used standalone as well! You don't need symfony, you can integrate it
 in any framework of choice (however Doctrine is a requirement).
@@ -38,11 +38,11 @@ Installation
 
 Require "jurjean/spray-persistence-bundle" in your composer.json:
 ```json
-{
-    "require": {
-        "jurjean/spray-persistence-bundle": "2.2.*@dev"
+    {
+        "require": {
+            "jurjean/spray-persistence-bundle": "2.2.*@dev"
+        }
     }
-}
 ```
 Register SprayPersistenceBundle in your AppKernel:
 ```php
@@ -171,10 +171,10 @@ ConflictingFilterInterface:
 ```
 If 'another' exists in the repository filter scope, it will be removed if
 ArticlesConflictingWith is added.
-
+```php
     $articles->filter('another');
     $articles->filter('conflictingWith'); // This is now the only filter
-
+```
 Filter registry
 ---------------
 
