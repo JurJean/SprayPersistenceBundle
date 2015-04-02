@@ -12,23 +12,23 @@ Introduction
 
 This bundle provides a way to query your objects in an abstract manner:
 ```php
-      $articles->filter('currentlyPublished');
-      $articles->filter('writtenBy', new Author('Buster'));
-      $articles->filter('ascending');
+$articles->filter('currentlyPublished');
+$articles->filter('writtenBy', new Author('Buster'));
+$articles->filter('ascending');
 ```
 It has a common API:
-
-      $articleCount = count($articles);
-      foreach ($articles as $article) {
+```php
+$articleCount = count($articles);
+foreach ($articles as $article) {
           
-      }
-
+}
+```
 Allows easy pagination:
-
-      foreach ($articles->paginate(1) as $article) {
+```php
+foreach ($articles->paginate(1) as $article) {
           
-      }
-
+}
+```
 And can be used standalone as well! You don't need symfony, you can integrate it
 in any framework of choice (however Doctrine is a requirement).
 
@@ -37,15 +37,15 @@ Installation
 ------------
 
 Require "jurjean/spray-persistence-bundle" in your composer.json:
-
-    {
-        "require": {
-            "jurjean/spray-persistence-bundle": "2.2.*@dev"
-        }
+```json
+{
+    "require": {
+        "jurjean/spray-persistence-bundle": "2.2.*@dev"
     }
-
+}
+```
 Register SprayPersistenceBundle in your AppKernel:
-
+```php
     class AppKernel extends Kernel
     {
         public function registerBundles()
@@ -57,7 +57,7 @@ Register SprayPersistenceBundle in your AppKernel:
             return $bundles;
         }
     }
-
+```
 
 The problem
 -----------
@@ -67,7 +67,7 @@ repository. However the repository pattern is not very DRY.
 
 If you want to do queries like described above, you could end up with a
 repository like so:
-
+```php
     class ArticleRepository extends Repository
     {
         public function findCurrentlyPublished($order)
@@ -80,7 +80,7 @@ repository like so:
             
         }
     }
-
+```
 As you can imagine, the only way to add more conditions is by duplication.
 That's where the RepositoryFilter comes in.
 
@@ -93,7 +93,7 @@ Prioritized entity filters
 
 You may want a filter to be prioritized. To do so you must implement the
 PrioritizedFilterInterface:
-
+```php
     use Doctrine\ORM\QueryBuilder;
     use Spray\PersistenceBundle\EntityFilter\EntityFilterInterface;
     use Spray\PersistenceBundle\EntityFilter\PrioritizedFilterInterface;
@@ -133,13 +133,13 @@ PrioritizedFilterInterface:
             return -100;
         }
     }
-
+```
 No matter in which order you add these filters, the order of execution
 still would be first and then last.
-
+```php
     $repository->filter('last'); // Added at priority level -100
     $repository->filter('first'); // Added at priority level 100, before 'last'
-
+```
 
 Conflicting entity filters
 --------------------------
@@ -147,7 +147,7 @@ Conflicting entity filters
 If you have filters that may conflict with each other (for instance if they
 add a where statement on the same column) you can implement the
 ConflictingFilterInterface:
-
+```php
     use Doctrine\ORM\QueryBuilder;
     use Spray\PersistenceBundle\EntityFilter\ConflictingFilterInterface;
 
@@ -168,7 +168,7 @@ ConflictingFilterInterface:
             return array('another');
         }
     }
-
+```
 If 'another' exists in the repository filter scope, it will be removed if
 ArticlesConflictingWith is added.
 
@@ -182,7 +182,7 @@ The filter registry is used to provide _repository filters_ with available
 _entity filters_. You can either build them up programmatically, or create
 registry classes yourself. After that you need to inject the registry into the
 repository filter.
-
+```php
     class ArticleFilters extends FilterRegistry
     {
         public function __construct()
@@ -197,7 +197,7 @@ repository filter.
 
     $articles->filter('publishedSince');
     $articles->filter('writtenBy', new Author('Buster'));
-
+```
 
 Symfony integration
 -------------------
@@ -205,7 +205,7 @@ Symfony integration
 You can configure your repository filters easily by extending the parent di
 container definition _spray_persistence.repository_filter_, and providing it
 with an Entity name as argument.
-
+```xml
     <container>
         <services>
             <service id="bundle.articles"
@@ -214,11 +214,11 @@ with an Entity name as argument.
             </service>
         </services>
     </container>
-
+```
 Filters are added by tagging them with name _spray_persistence.entity_filter_.
 You can either set them up globally (for all repositories) or locally (for one
 repository). You make them local by adding _repository_ as a tag option.
-
+```xml
     <container>
         <services>
             <service id="bundle.articles"
@@ -235,7 +235,7 @@ repository). You make them local by adding _repository_ as a tag option.
             </service>
         </services>
     </container>
-
+```
 Examples
 --------
 
