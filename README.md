@@ -11,11 +11,11 @@ Introduction
 ------------
 
 This bundle provides a way to query your objects in an abstract manner:
-
+```php
       $articles->filter('currentlyPublished');
       $articles->filter('writtenBy', new Author('Buster'));
       $articles->filter('ascending');
-
+```
 It has a common API:
 
       $articleCount = count($articles);
